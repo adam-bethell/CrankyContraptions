@@ -1,0 +1,38 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+    "diagnostics.globals": ["import",
+        "TankUI",
+        "Tank",
+        "TankMissile",
+        "Bounds",
+        "TankLevel",
+        "SceneManager",
+        "LevelSelect",
+        "AITankEasy",
+        "MissilesHandler",
+        "AITankDummy",
+        "AITankMedium",
+        "TankExplosion",
+        "AITankHard",
+        "PDFXR",
+        "AudioManager",
+        "PDFXRPool",
+        "EngineSFX"],
+    "diagnostics.severity": {
+        "duplicate-set-field": "Hint"
+    },
+    "format.defaultConfig": {
+        "indent_style": "space",
+        "indent_size": "4"
+    },
+    "runtime.builtin": {
+        "io": "disable",
+        "os": "disable",
+        "package": "disable"
+    },
+    "runtime.nonstandardSymbol": ["+=", "-=", "*=", "/=", "//=", "%=", "<<=", ">>=", "&=", "|=", "^="],
+    "runtime.version": "Lua 5.4",
+    "workspace.library": [
+        "C:/Users/Adam/Documents/playdate-luacats"
+    ]
+}
