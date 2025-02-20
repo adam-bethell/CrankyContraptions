@@ -11,7 +11,7 @@ local gfx <const> = pd.graphics
 
 
 
-local cam = Cam(200, 120)
+local cam = Cam(100, 120)
 local points = table.create(24)
 local delta = 0.041
 local val = 0
@@ -28,14 +28,22 @@ local amp = 1
 cam:setPoints(points)
 cam:setWidthAndHeight(200)
 cam:draw()
+
+local image = gfx.image.new(400, 240)
+local s = gfx.sprite.new(image)
+s:moveTo(200, 120)
+s:add()
+
 function pd.update()
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
         index = index - 1 < 1 and #points or index - 1
-        print(index)
     elseif pd.buttonJustPressed(pd.kButtonRight) then
         index = index + 1 > #points and 1 or index + 1
-        print(index)
+    elseif pd.buttonJustPressed(pd.kButtonUp) then
+        cam:scalePoints(1.2)
+    elseif pd.buttonJustPressed(pd.kButtonDown) then
+        cam:scalePoints(0.8)
     end
     --print(index)
     cam:setUISelection(index)
@@ -47,6 +55,17 @@ function pd.update()
     points[index] = amp
     cam:setPoints(points)
     cam:draw()
+
+    cam:rotate(1)
+    local mag = cam:getMagnitude(90)
+
+    gfx.pushContext(image)
+        image:clear(gfx.kColorClear)
+        gfx.setLineWidth(10)
+        gfx.drawLine(100 + (mag*100), 120, 250 + (mag*100), 120)
+    gfx.popContext()
+    s:setImage(image)
+    s:markDirty()
 
     gfx.sprite.update()
     pd.timer.updateTimers()

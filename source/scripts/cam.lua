@@ -40,6 +40,25 @@ function Cam:setUISelection(index)
     self.selectionIndex = index
 end
 
+function Cam:scalePoints(value)
+    local max = 0
+    for i=1, #self.points do
+        if self.points[i] > max then
+            max = self.points[i]
+        end
+
+    end
+    
+    max = 1 / max
+    local min = 0.1
+
+    value = math.clamp(value, min, max)
+
+    for i=1, #self.points do
+       self.points[i] =  self.points[i] * value
+    end
+end
+
 function Cam:draw()
     self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
@@ -87,4 +106,15 @@ end
 function Cam:pointToDeg(index)
     local interval = 360 / #self.points
     return interval * (index - 1)
+end
+
+function Cam:rotate(val)
+    self.phase = math.wrap(self.phase, 0, 359, val)
+    self:setRotation(-self.phase)
+end
+
+function Cam:getMagnitude(rotation)
+    rotation = nil and 0 or rotation
+    local deg = math.wrap(self.phase, 0, 359, rotation)
+    return self:magAtDeg(deg)
 end
