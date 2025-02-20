@@ -5,6 +5,7 @@ function Vector.distance(x1, y1, x2, y2)
 end
 
 function Vector.addToPoint(x, y, deg, mag)
+    deg -= 90
     local dx = math.cos(math.rad(deg)) * mag
     local dy = math.sin(math.rad(deg)) * mag
     return x+dx, y+dy
