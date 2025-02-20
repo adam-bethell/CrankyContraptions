@@ -19,7 +19,8 @@
         "PDFXRPool",
         "EngineSFX",
         "Osc",
-        "Scope"],
+        "Scope",
+        "Cam"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
