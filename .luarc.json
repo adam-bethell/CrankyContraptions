@@ -17,7 +17,9 @@
         "PDFXR",
         "AudioManager",
         "PDFXRPool",
-        "EngineSFX"],
+        "EngineSFX",
+        "Osc",
+        "Scope"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

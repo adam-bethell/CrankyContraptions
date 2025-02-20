@@ -1,2 +1,2 @@
-# playdate-template
-Template repo for playdate projects
+# Cranky Contraptions
+Work in progress - nothing to see here
