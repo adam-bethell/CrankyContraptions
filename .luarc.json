@@ -20,7 +20,8 @@
         "EngineSFX",
         "Osc",
         "Scope",
-        "Cam"],
+        "Cam",
+        "vector"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
