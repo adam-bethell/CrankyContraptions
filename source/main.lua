@@ -15,7 +15,7 @@ local gfx <const> = pd.graphics
 math.randomseed(pd.getSecondsSinceEpoch())
 
 local camShaft = CamShaft()
-camShaft:focus(true)
+camShaft:setFocus(true)
 
 function pd.update()
     gfx.sprite.update()
