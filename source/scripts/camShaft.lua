@@ -7,6 +7,7 @@ import "scripts/util/vector"
 import "scripts/util/math"
 
 import "scripts/cam"
+import "scripts/camInfoPanel"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -93,25 +94,31 @@ function CamShaft:updateShaft()
     end
 
     if pd.buttonJustPressed(pd.kButtonA) then
-        self.camEditor = Cam(200, 120, 10)
+        self.camEditor = Cam(110, 120, 10)
         self.camEditor:setWidthAndHeight(200)
         self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
         self.camEditor:draw()
+
+        self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)
     end
 end
 
 function CamShaft:updateEditor()
-    if pd.buttonJustPressed(pd.kButtonLeft) then
-        self.editorSelection -= 1
-    elseif pd.buttonJustPressed(pd.kButtonRight) then
-        self.editorSelection += 1
-    end
-    self.editorSelection = math.wrap(self.editorSelection, 1, 24, 0)
-    self.camEditor:setUISelection(self.editorSelection)
-
     local change = pd.getCrankChange() / 359
-    self.camEditor:adjustPoint(self.editorSelection, change)
-
+    
+    local s, r = self.camInfoPanel:getSelection()
+    if s == 1 then
+        self.editorSelection = r
+        self.camEditor:adjustPoint(self.editorSelection, change)
+    else
+        self.editorSelection = 0
+        if r == 1 then
+            self.camEditor:scalePoints(1+change)
+        elseif r == 2 then
+            self.camEditor:sizePoints(change)
+        end
+    end
+    self.camEditor:setUISelection(self.editorSelection)
     self.camEditor:draw()
 
     if pd.buttonIsPressed(pd.kButtonB) then
@@ -119,5 +126,7 @@ function CamShaft:updateEditor()
         self.cams[self.selection]:draw()
         self.camEditor:remove()
         self.camEditor = nil
+        self.camInfoPanel:remove()
+        self.camInfoPanel = nil
     end
 end

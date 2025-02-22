@@ -22,7 +22,8 @@
         "Scope",
         "Cam",
         "vector",
-        "CamShaft"],
+        "CamShaft",
+        "CamInfoPanel"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

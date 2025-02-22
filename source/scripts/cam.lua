@@ -24,6 +24,7 @@ function Cam:init(x, y, zIndex)
     self.socketX = 0
     self.socketY = 0
 
+    self.lineWidth = 1
     self.camImage = nil
     self.boxImage = nil
     self.shaftImage = nil
@@ -81,12 +82,35 @@ function Cam:scalePoints(value)
     end
     
     max = 1 / max
+    print(max)
     local min = 0.1
 
     value = math.clamp(value, min, max)
 
     for i=1, #self.points do
        self.points[i] =  self.points[i] * value
+    end
+    self:generateCamImageTable()
+end
+
+function Cam:sizePoints(value)
+    local max = 0
+    local min = 1
+    for i=1, #self.points do
+        if self.points[i] > max then
+            max = self.points[i]
+        end
+        if self.points[i] < min then
+            min = self.points[i]
+        end
+    end
+    max = 1 - max
+    min = -min
+
+    value = math.clamp(value, min, max)
+
+    for i=1, #self.points do
+       self.points[i] =  self.points[i] + value
     end
     self:generateCamImageTable()
 end
