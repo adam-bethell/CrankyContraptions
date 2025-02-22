@@ -9,25 +9,49 @@ local gfx <const> = pd.graphics
 
 class("Cam").extends(gfx.sprite)
 
-function Cam:init(x, y)
+function Cam:init(x, y, zIndex)
+    if zIndex == nil then
+        zIndex = 0
+    end
     self.points = {1, 1, 1, 1, 1, 1, 1, 1}
     self.x = x
     self.y = y
-    self.w = 35
-    self.h = 35
-    self.lineWidth = 1
+    self.rotationCoeff = 1
     self.phase = 0
     self.selectionIndex = 0
+    self.camShapeChanged = true
+
+    self.socketX = 0
+    self.socketY = 0
+
+    self.camImage = nil
+    self.boxImage = nil
+    self.shaftImage = nil
+    self.selectionImage = nil
     
-    self.camImage = gfx.image.new(self.w, self.h)
     self.camSprite = gfx.sprite.new()
     self.camSprite:moveTo(self.x, self.y)
+    self.camSprite:setZIndex(zIndex)
     self.camSprite:add()
 
-    self.boxImage = gfx.image.new(self.w, self.h)
+    self.selectionSprite = gfx.sprite.new()
+    self.selectionSprite:moveTo(self.x, self.y)
+    self.selectionSprite:setZIndex(zIndex)
+    self.selectionSprite:add()
+
     self.boxSprite = gfx.sprite.new()
     self.boxSprite:moveTo(self.x, self.y)
+    self.boxSprite:setZIndex(zIndex-1)
     self.boxSprite:add()
+
+    self.shaftSprite = gfx.sprite.new()
+    self.shaftSprite:moveTo(self.x, self.y)
+    self.shaftSprite:setZIndex(zIndex)
+    self.shaftSprite:add()
+
+    self:setWidthAndHeight(47)
+    self:moveTo(self.x, self.y)
+    self:add()
 end
 
 function Cam:setWidthAndHeight(value)
@@ -35,15 +59,16 @@ function Cam:setWidthAndHeight(value)
     self.h = value
     self.lineWidth = math.floor((value / 60) + 0.5)
     self.camImage = gfx.image.new(self.w, self.h)
+    self.selectionImage = gfx.image.new(self.w, self.h)
     self.boxImage = gfx.image.new(self.w, self.h)
+    self.shaftImage = gfx.image.new(self.w, self.h)
+    self.shaftSprite:moveTo(self.x, self.y - (self.h / 2))
+    self:generateCamImageTable()
 end
 
 function Cam:setPoints(points)
     self.points = points
-end
-
-function Cam:setUISelection(index)
-    self.selectionIndex = index
+    self:generateCamImageTable()
 end
 
 function Cam:scalePoints(value)
@@ -63,16 +88,23 @@ function Cam:scalePoints(value)
     for i=1, #self.points do
        self.points[i] =  self.points[i] * value
     end
+    self:generateCamImageTable()
 end
 
-function Cam:draw()
+function Cam:setUISelection(index)
+    self.selectionIndex = index
+end
+
+function Cam:adjustPoint(index, change)
+    self.points[index] = math.clamp(self.points[index] + change, 0, 1)
+    self:generateCamImageTable()
+end
+
+function Cam:generateCamImageTable()
     self.camImage:clear(gfx.kColorClear)
     gfx.pushContext(self.camImage)
         gfx.setLineWidth(self.lineWidth)
-
-        -- Cam
         local centre = math.floor(self.h / 2)
-        gfx.fillRect(centre-1, centre-1, 3, 3)
         local i = 0
         local x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
         local fx, fy = x, y
@@ -89,32 +121,64 @@ function Cam:draw()
         if vector.distance(px, py, fx, fy) > 2 then
             gfx.drawLine(px, py, fx, fy)
         end
-
-        -- Selection circle
-        if self.selectionIndex > 0 and self.selectionIndex < #self.points+1 then
-            local mag = self.points[self.selectionIndex]
-            x, y = vector.addToPoint(centre, centre, self:pointToDeg(self.selectionIndex), centre * mag)
-            gfx.drawCircleAtPoint(x,y, 10)
-        end
     gfx.popContext()
-    self.camSprite:setImage(self.camImage)
-    self.camSprite:markDirty()
+    
+    self.camImageTable = gfx.imagetable.new(360)
+    self.camImageTable:setImage(1, self.camImage)
+end
 
-    self.boxImage:clear(gfx.kColorClear)
+function Cam:generateCamRotation(phase)
+    local img = self.camImage:rotatedImage(phase)
+    self.camImageTable:setImage(phase+1, img)
+    return img
+end
+
+function Cam:draw()
+    -- Box
+    self.boxImage:clear(gfx.kColorWhite)
     gfx.pushContext(self.boxImage)
-        -- Box
         gfx.setLineWidth(self.lineWidth)
+        gfx.fillRect(self.h / 2, self.h / 2, 3, 3)
         gfx.drawRect(0, 0, self.w, self.h)
-
-        -- Followers
-        gfx.setLineWidth(self.lineWidth * 2)
-        gfx.drawLine(self.w/2, 0, self.w/2, self.h/2 - self:getEdgePosition(0))
-        gfx.drawLine(self.w / 2, self.h, self.w / 2, self.h/2 + self:getEdgePosition(180))
-        gfx.drawLine(0, self.h / 2, self.w/2-self:getEdgePosition(270), self.h / 2)
-        gfx.drawLine(self.w, self.h / 2, self.w/2+self:getEdgePosition(90), self.h / 2)
     gfx.popContext()
     self.boxSprite:setImage(self.boxImage)
     self.boxSprite:markDirty()
+
+    -- Selection
+    self.selectionImage:clear(gfx.kColorClear)
+    gfx.pushContext(self.selectionImage)
+        -- Selection circle
+        if self.selectionIndex > 0 and self.selectionIndex < #self.points+1 then
+            local centre = math.floor(self.h / 2)
+            local mag = self.points[self.selectionIndex]
+            local x, y = vector.addToPoint(centre, centre, self:pointToDeg(self.selectionIndex), centre * mag)
+            gfx.drawCircleAtPoint(x,y, 10)
+        end
+    gfx.popContext()
+    self.selectionSprite:setImage(self.selectionImage)
+    self.selectionSprite:markDirty()
+    
+    -- Shaft
+    self.shaftImage:clear(gfx.kColorClear)
+    gfx.pushContext(self.shaftImage)
+        gfx.setLineWidth(self.lineWidth * 2)
+        gfx.drawLine(self.w/2, self.h - self:getEdgePosition(0), self.w/2, self.h - self:getEdgePosition(0) - (self.h / 2))
+        self.socketX = (self.w / 2) + self.x
+        self.socketY = (self.h - self:getEdgePosition(0)) + self.y
+    gfx.popContext()
+    self.shaftSprite:setImage(self.shaftImage)
+    self.shaftSprite:markDirty()
+
+    -- Change image
+    local rotationalPhase = math.wrap(-self.phase, 0, 359, 0)
+    local imageTableIndex = rotationalPhase + 1
+    local img = self.camImageTable:getImage(imageTableIndex)
+    if img == nil then
+        img = self:generateCamRotation(rotationalPhase)
+    end
+    self.camSprite:setImage(self.camImageTable:getImage(math.wrap(-self.phase, 0, 359, 0) + 1))
+    self.camSprite:markDirty()
+    
 end
 
 function Cam:magAtDeg(deg)
@@ -130,9 +194,13 @@ function Cam:pointToDeg(index)
     return interval * (index - 1)
 end
 
+function Cam:setRotationMultiplyer(val)
+    self.rotationCoeff = val
+end
+
 function Cam:rotate(val)
-    self.phase = math.wrap(self.phase, 0, 359, val)
-    self.camSprite:setRotation(-self.phase)
+    val *= self.rotationCoeff
+    self.phase = math.floor(math.wrap(self.phase, 0, 359, val) + 0.5)
 end
 
 function Cam:getEdgePosition(rotation)
@@ -142,4 +210,20 @@ function Cam:getEdgePosition(rotation)
     local deg = math.wrap(self.phase, 0, 359, rotation)
     local pos = self:magAtDeg(deg) * (self.h / 2)
     return pos
+end
+
+function Cam:update()
+    -- Update
+end
+
+function Cam:clonePoints()
+    return table.shallowcopy(self.points)
+end
+
+function Cam:remove()
+    self.camSprite:remove()
+    self.selectionSprite:remove()
+    self.boxSprite:remove()
+    self.shaftSprite:remove()
+    Cam.super.remove(self)
 end

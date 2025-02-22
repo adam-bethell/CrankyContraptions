@@ -21,7 +21,8 @@
         "Osc",
         "Scope",
         "Cam",
-        "vector"],
+        "vector",
+        "CamShaft"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

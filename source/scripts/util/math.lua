@@ -18,31 +18,23 @@ math.wrap = function(value, lower, upper, change)
     return value
 end
 
---[[ 
-function find_third_point(A, B, AC, BC)
-    for x3 = -10, 10, 0.1 do
-        for y3 = -10, 10, 0.1 do
-            local C = {x = x3, y = y3}
-            if math.abs(distance(A, C) - AC) < 0.1 and math.abs(distance(B, C) - BC) < 0.1 then
-                return C
-            end
-        end
-    end
-    return nil
-end
-]]
 math.getIntersectingPoint = function(ax, ay, ac, bx, by, bc)
-    -- Calculate the constants
+    --Calculate the length AB.
     local ab = vector.distance(ax, ay, bx, by)
+    --Picture a line that goes straight from A to B.
+    --The length D tells you how far along this line C would be if it were directly on this line. 
+    --This helps us find the first part of C's position. 
     local D = (ab^2 + ac^2 - bc^2) / (2 * ab)
+    --Now, imagine a line that's perpendicular (at a right angle) to the line AB. 
+    --The length h tells you how far away C is from AB along this perpendicular line.
     local h = math.sqrt(ac^2 - D^2)
 
     -- Calculate the coordinates of the third point C
-    local x3_1 = ax + D * (bx - ax) / ab + h * (by - ay) / ab
-    local y3_1 = ay + D * (by - ay) / ab - h * (bx - ax) / ab
+    local cx1 = ax + D * (bx - ax) / ab + h * (by - ay) / ab
+    local cy1 = ay + D * (by - ay) / ab - h * (bx - ax) / ab
 
-    local x3_2 = ax + D * (bx - ax) / ab - h * (by - ay) / ab
-    local y3_2 = ay + D * (by - ay) / ab + h * (bx - ax) / ab
+    local cx2 = ax + D * (bx - ax) / ab - h * (by - ay) / ab
+    local cy2 = ay + D * (by - ay) / ab + h * (bx - ax) / ab
 
-    return x3_1, y3_1, x3_2, y3_2
+    return cx1, cy1, cx2, cy2
 end
