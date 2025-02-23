@@ -21,13 +21,6 @@ function CamShaft:init(n)
     if n == nil then
         n = 7
     end
-    self.points = {}
-    self.delta = 0.041
-    self.val = 0
-    for i=1, 24 do
-        self.points[i] = self.val
-        self.val += self.delta
-    end
     
     local x = 32
     self.cams = {}
@@ -37,15 +30,14 @@ function CamShaft:init(n)
             break
         end
         self.cams[i] = Cam(x, 216)
-        self.cams[i]:setPoints(table.shallowcopy(self.points))
-        self.cams[i]:rotate(math.random(0, 359))
+        self.cams[i]:setPoints(table.shallowcopy(CamInfoPanel.presets[2].points))
         self.cams[i]:setRotationsPerCrank(math.random())
-        self.cams[i]:draw()
-
         self.followers[i] = CamFollower(x, 216-(47/2))
         self.followers[i]:setScale(math.random())
+        self.followers[i]:draw()
         self.cams[i]:setFollower(self.followers[i])
-
+        self.cams[i]:rotate(math.random(0, 359))
+        self.cams[i]:draw()
         x += 48
     end
     
@@ -58,6 +50,7 @@ function CamShaft:init(n)
     self.selector = gfx.sprite.new(self.selectorRowImages[1])
     self.selector:moveTo(x, 216)
     self.selector:add()
+    self.selector:setVisible(false)
     
     self.editorSelection = 1
     self.camEditor = nil
@@ -75,11 +68,23 @@ function CamShaft:init(n)
 end
 
 function CamShaft:setFocus(focus)
-    self.hasFocus = focus
+    self.focus = focus
+    self.selector:setVisible(focus)
+end
+
+function CamShaft:getFocus()
+    return self.focus
+end
+
+function CamShaft:canLosefocus()
+    if self.camEditor == nil and self.ampEditor == nil then
+        return true
+    end
+    return false
 end
 
 function CamShaft:update()
-    if self.hasFocus then
+    if self.focus then
         if self.camEditor ~= nil then
             self:updateCamEditor()
         elseif self.ampEditor ~= nil then

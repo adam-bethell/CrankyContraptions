@@ -25,7 +25,9 @@
         "CamShaft",
         "CamInfoPanel",
         "CamFollower",
-        "CamFollowerInfoPanel"],
+        "CamFollowerInfoPanel",
+        "Level",
+        "World"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

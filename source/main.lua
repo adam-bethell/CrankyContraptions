@@ -6,16 +6,14 @@ import "CoreLibs/timer"
 import "scripts/util/math"
 import "scripts/util/vector"
 
-import "scripts/cam"
-import "scripts/camShaft"
+import "scripts/level"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 math.randomseed(pd.getSecondsSinceEpoch())
 
-local camShaft = CamShaft()
-camShaft:setFocus(true)
+local level = Level()
 
 function pd.update()
     gfx.sprite.update()
