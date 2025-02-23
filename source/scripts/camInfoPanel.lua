@@ -34,7 +34,7 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
     self.optionsOther:setNumberOfColumns(1)
     self.optionsOther:setContentInset(5, 5, 5, 5)
 ---@diagnostic disable-next-line: inject-field
-    self.optionsOther.editOptions = {"Scale", "Size", "Speed"}
+    self.optionsOther.editOptions = {"Scale", "Size", "Speed " .. self.cam.rotationsPerCrank}
     self.optionsOther:setNumberOfRows(#self.optionsOther.editOptions)
     function self.optionsOther:drawCell(section, row, column, selected, x, y, width, height)
         if selected then
@@ -54,12 +54,15 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
 end
 
 function CamInfoPanel:update()
+---@diagnostic disable-next-line: inject-field
+    self.optionsOther.editOptions[3] = "Speed: " .. self.cam.rotationCoeff
+
     self.img:clear(gfx.kColorWhite)
     gfx.pushContext(self.img)
         gfx.setLineWidth(self.cam.lineWidth)
         gfx.drawRect(0, 0, self.width, self.height)
         self.optionsPoints:drawInRect(0, 0, self.width, self.height)
-        self.optionsOther:drawInRect(self.width / 2, 0, self.width, self.height)
+        self.optionsOther:drawInRect(self.width / 2 - 10, 0, self.width, self.height)
     gfx.popContext()
     self:setImage(self.img)
     self:markDirty()

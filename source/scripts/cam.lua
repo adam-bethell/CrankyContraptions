@@ -16,13 +16,13 @@ function Cam:init(x, y, zIndex)
     self.points = {1, 1, 1, 1, 1, 1, 1, 1}
     self.x = x
     self.y = y
-    self.rotationCoeff = 1
+    self.rotationsPerCrank = 1.0
+    self.rotationCoeff = 1.0
     self.phase = 0
     self.selectionIndex = 0
     self.camShapeChanged = true
 
-    self.socketX = 0
-    self.socketY = 0
+    self.follower = nil
 
     self.lineWidth = 1
     self.camImage = nil
@@ -82,7 +82,6 @@ function Cam:scalePoints(value)
     end
     
     max = 1 / max
-    print(max)
     local min = 0.1
 
     value = math.clamp(value, min, max)
@@ -120,8 +119,11 @@ function Cam:setUISelection(index)
 end
 
 function Cam:adjustPoint(index, change)
-    self.points[index] = math.clamp(self.points[index] + change, 0, 1)
-    self:generateCamImageTable()
+    local val = math.clamp(self.points[index] + change, 0, 1)
+    if self.points[index] ~= val then
+        self.points[index] = val
+        self:generateCamImageTable()
+    end
 end
 
 function Cam:generateCamImageTable()
@@ -187,8 +189,6 @@ function Cam:draw()
     gfx.pushContext(self.shaftImage)
         gfx.setLineWidth(self.lineWidth * 2)
         gfx.drawLine(self.w/2, self.h - self:getEdgePosition(0), self.w/2, self.h - self:getEdgePosition(0) - (self.h / 2))
-        self.socketX = (self.w / 2) + self.x
-        self.socketY = (self.h - self:getEdgePosition(0)) + self.y
     gfx.popContext()
     self.shaftSprite:setImage(self.shaftImage)
     self.shaftSprite:markDirty()
@@ -218,13 +218,23 @@ function Cam:pointToDeg(index)
     return interval * (index - 1)
 end
 
-function Cam:setRotationMultiplyer(val)
-    self.rotationCoeff = val
+function Cam:setRotationsPerCrank(val)
+    self.rotationsPerCrank = math.clamp(val, 0.1, 5)
+    self.rotationCoeff = math.floor(self.rotationsPerCrank * 10) / 10
+end
+
+function Cam:adjustRotationsPerCrank(val)
+    self.rotationsPerCrank = math.clamp(self.rotationsPerCrank + val, 0.1, 5)
+    self.rotationCoeff = math.floor(self.rotationsPerCrank * 10) / 10
 end
 
 function Cam:rotate(val)
     val *= self.rotationCoeff
     self.phase = math.floor(math.wrap(self.phase, 0, 359, val) + 0.5)
+
+    if self.follower ~= nil then
+        self.follower:setInput(self:magAtDeg(self.phase))
+    end
 end
 
 function Cam:getEdgePosition(rotation)
@@ -234,10 +244,6 @@ function Cam:getEdgePosition(rotation)
     local deg = math.wrap(self.phase, 0, 359, rotation)
     local pos = self:magAtDeg(deg) * (self.h / 2)
     return pos
-end
-
-function Cam:update()
-    -- Update
 end
 
 function Cam:clonePoints()
@@ -250,4 +256,8 @@ function Cam:remove()
     self.boxSprite:remove()
     self.shaftSprite:remove()
     Cam.super.remove(self)
+end
+
+function Cam:setFollower(follower)
+    self.follower = follower
 end
