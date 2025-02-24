@@ -27,7 +27,8 @@
         "CamFollower",
         "CamFollowerInfoPanel",
         "Level",
-        "World"],
+        "World",
+        "Beam"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

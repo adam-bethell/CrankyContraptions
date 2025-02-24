@@ -14,8 +14,16 @@ function CamFollower:init(x, y)
     self.coeff = 1.0
     self.output = 0.0
 
+    self.x = x
+    self.y = y
+    self.socket = {
+        x = 0, 
+        y = 0
+    }
+    
     self.image = gfx.image.new(47, 240-(240-y))
     self:setImage(self.image)
+    self:setZIndex(-10)
     self:moveTo(x, self.image.height / 2)
     self:add()
 
@@ -48,7 +56,7 @@ function CamFollower:calculateOutput()
 end
 
 function CamFollower:draw()
-    self.image:clear(gfx.kColorClear)
+    self.image:clear(gfx.kColorWhite)
     gfx.pushContext(self.image)
         gfx.setLineWidth(2)
         -- Box
@@ -60,6 +68,8 @@ function CamFollower:draw()
         -- Follower rod
         local rodHeight = boxTop - (self.output)
         gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, rodHeight)
+        self.socket.x = self.x
+        self.socket.y = rodHeight
     gfx.popContext()
     self:markDirty()
 end

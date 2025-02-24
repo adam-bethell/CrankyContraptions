@@ -49,9 +49,11 @@ function CamShaft:init(n)
     }
     self.selector = gfx.sprite.new(self.selectorRowImages[1])
     self.selector:moveTo(x, 216)
+    self.selector:setZIndex(10)
     self.selector:add()
     self.selector:setVisible(false)
     
+    self.inUpdateShaft = false
     self.editorSelection = 1
     self.camEditor = nil
     self.ampEditor = nil
@@ -64,6 +66,11 @@ function CamShaft:init(n)
     self.flywheel:moveTo(368, 216)
     self.flywheel:add()
 
+    local bg = gfx.image.new(400, 72)
+    bg:clear(gfx.kColorBlack)
+    self:setImage(bg)
+    self:moveTo(200, 204)
+    self:setZIndex(-20)
     self:add()
 end
 
@@ -77,19 +84,19 @@ function CamShaft:getFocus()
 end
 
 function CamShaft:canLosefocus()
-    if self.camEditor == nil and self.ampEditor == nil then
-        return true
-    end
-    return false
+    return self.inUpdateShaft
 end
 
 function CamShaft:update()
     if self.focus then
         if self.camEditor ~= nil then
+            self.inUpdateShaft = false
             self:updateCamEditor()
         elseif self.ampEditor ~= nil then
+            self.inUpdateShaft = false
             self:updateAmpEditor()
         else
+            self.inUpdateShaft = true
             self:updateShaft()
         end
     end
@@ -136,7 +143,7 @@ function CamShaft:updateShaft()
         end
     
         if pd.buttonJustPressed(pd.kButtonA) then
-            self.camEditor = Cam(110, 120, 10)
+            self.camEditor = Cam(110, 120, 20)
             self.camEditor:setWidthAndHeight(200)
             self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
             self.camEditor:setRotationsPerCrank(self.cams[self.selection].rotationCoeff)
@@ -197,4 +204,12 @@ function CamShaft:updateCamEditor()
         self.camInfoPanel:remove()
         self.camInfoPanel = nil
     end
+end
+
+function CamShaft:getSockets()
+    local s = {}
+    for i=1, #self.followers do
+        s[#s+1] = self.followers[i].socket
+    end
+    return s
 end

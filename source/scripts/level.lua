@@ -7,6 +7,7 @@ import "scripts/util/math"
 import "scripts/util/vector"
 
 import "scripts/camShaft"
+import "scripts/world"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -17,12 +18,13 @@ function Level:init()
     self.camShaft = CamShaft()
     self.camShaft:setFocus(false)
 
-    self.world = World()
-    self.world:setFocus(false)
-
     self.selections = {}
     self.selections.kSelectionCamShaft = 1
     self.selections.kSelectionWorld = 2
+
+    self.world = World()
+    self.world:setSockets(self.camShaft:getSockets())
+    self.world:setFocus(false)
 
     self.selection = self.selections.kSelectionCamShaft
     self.selectionImage = gfx.image.new("images/dither_pattern_400_145")
@@ -39,9 +41,9 @@ function Level:init()
     self:add()
 
     -- Simulate giving focus to the world object
-    self.selection = self.selections.kSelectionWorld
-    self.selectionSprite:moveTo(self:getSelectionPosition())
-    self:giveFocusToSelection()
+    --self.selection = self.selections.kSelectionWorld
+    --self.selectionSprite:moveTo(self:getSelectionPosition())
+    --self:giveFocusToSelection()
 end
 
 function Level:getSelectionPosition()

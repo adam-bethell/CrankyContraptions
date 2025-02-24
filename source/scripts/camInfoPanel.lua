@@ -69,10 +69,11 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
         end
     end
 
-    self.optionsOther:setSelection(10, 1, 1)
+    self.optionsOther:setSelection(101, 1, 1)
 
     self.img = gfx.image.new(width, height)
     self:setImage(self.img)
+    self:setZIndex(20)
     self:moveTo(x, y)
     self:setZIndex(zindex)
     self:add()
@@ -121,10 +122,10 @@ function CamInfoPanel:update()
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
         self.optionsPoints:setSelection(1, pR, pC)
-        self.optionsOther:setSelection(oS*10, oR, oC)
+        self.optionsOther:setSelection(oS+100, oR, oC)
     elseif pd.buttonJustPressed(pd.kButtonRight) then
         self.optionsPoints:setSelection(5, pR, pC)
-        self.optionsOther:setSelection(oS/10, oR, oC)
+        self.optionsOther:setSelection(oS-100, oR, oC)
     end
 
     if oS == 2 then
