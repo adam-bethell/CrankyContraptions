@@ -17,7 +17,7 @@ function CamFollower:init(x, y)
     self.x = x
     self.y = y
     self.socket = {
-        x = 0, 
+        x = 0,
         y = 0
     }
     

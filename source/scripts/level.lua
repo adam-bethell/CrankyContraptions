@@ -67,6 +67,13 @@ function Level:update()
                 self.selectionSprite:setVisible(true)
             end
         end
+    elseif self.world:getFocus() then
+        if pd.buttonJustPressed(pd.kButtonB) then
+            if self.world:canLosefocus() then
+                self.world:setFocus(false)
+                self.selectionSprite:setVisible(true)
+            end
+        end
     else -- Not sub components focussed
         if pd.buttonJustPressed(pd.kButtonUp) then
             self.selection = self.selections.kSelectionWorld
