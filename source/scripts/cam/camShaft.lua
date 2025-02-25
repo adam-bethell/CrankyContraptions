@@ -7,10 +7,10 @@ import "CoreLibs/crank"
 import "scripts/util/vector"
 import "scripts/util/math"
 
-import "scripts/cam"
-import "scripts/camInfoPanel"
-import "scripts/camFollower"
-import "scripts/camFollowerInfoPanel"
+import "scripts/cam/cam"
+import "scripts/cam/camInfoPanel"
+import "scripts/cam/camFollower"
+import "scripts/cam/camFollowerInfoPanel"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics

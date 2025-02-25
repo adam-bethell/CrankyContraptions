@@ -6,8 +6,8 @@ import "CoreLibs/timer"
 import "scripts/util/math"
 import "scripts/util/vector"
 
-import "scripts/camShaft"
-import "scripts/world"
+import "scripts/cam/camShaft"
+import "scripts/physics/world"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -22,10 +22,6 @@ function Level:init()
     self.selections.kSelectionCamShaft = 1
     self.selections.kSelectionWorld = 2
 
-    self.world = World()
-    self.world:setSockets(self.camShaft:getSockets())
-    self.world:setFocus(false)
-
     self.selection = self.selections.kSelectionCamShaft
     self.selectionImage = gfx.image.new("images/dither_pattern_400_145")
     assert(self.selectionImage)
@@ -39,11 +35,6 @@ function Level:init()
     self.selectionSprite:setVisible(true)
 
     self:add()
-
-    -- Simulate giving focus to the world object
-    --self.selection = self.selections.kSelectionWorld
-    --self.selectionSprite:moveTo(self:getSelectionPosition())
-    --self:giveFocusToSelection()
 end
 
 function Level:getSelectionPosition()
@@ -67,7 +58,7 @@ function Level:update()
                 self.selectionSprite:setVisible(true)
             end
         end
-    elseif self.world:getFocus() then
+    elseif false then
         if pd.buttonJustPressed(pd.kButtonB) then
             if self.world:canLosefocus() then
                 self.world:setFocus(false)

@@ -16,8 +16,7 @@ math.randomseed(pd.getSecondsSinceEpoch())
 
 import "scripts/physics/world"
 local test = World()
-
---local level = Level()
+local level = Level()
 
 function pd.update()
     gfx.sprite.update()

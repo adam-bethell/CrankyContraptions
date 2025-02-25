@@ -36,7 +36,8 @@
         "ConvexPolygonShape",
         "ConcavePolygonShape",
         "CircleShape",
-        "PointShape"],
+        "PointShape",
+        "Rigidbody"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

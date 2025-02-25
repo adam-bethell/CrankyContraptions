@@ -6,7 +6,7 @@ import "CoreLibs/ui"
 import "scripts/util/vector"
 import "scripts/util/math"
 
-import "scripts/cam"
+import "scripts/cam/cam"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics

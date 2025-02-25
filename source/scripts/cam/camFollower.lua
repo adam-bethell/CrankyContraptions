@@ -66,6 +66,7 @@ function CamFollower:draw()
         rect:inset(2, 2)
         gfx.drawText(tostring(math.floor(self.input*10)), rect)
         -- Follower rod
+        gfx.setPattern({ 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 })
         local rodHeight = boxTop - (self.output)
         gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, rodHeight)
         self.socket.x = self.x

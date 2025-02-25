@@ -130,23 +130,18 @@ function Cam:generateCamImageTable()
     self.camImage:clear(gfx.kColorClear)
     gfx.pushContext(self.camImage)
         gfx.setLineWidth(self.lineWidth)
+        local v = 1
+        local verticies = table.create(360)
         local centre = math.floor(self.h / 2)
         local i = 0
-        local x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
-        local fx, fy = x, y
-        local px, py = x, y
-        for i=1, 359 do
+        local v = 1
+        for i=0, 359 do
             x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
-            if vector.distance(px, py, x, y) > 2 then
-                gfx.drawLine(px, py, x, y)
-            else
-                gfx.fillCircleAtPoint(x, y, self.lineWidth / 2)
-            end
-            px, py = x, y
+            verticies[v] = math.floor(x)
+            verticies[v+1] = math.floor(y)
+            v += 2
         end
-        if vector.distance(px, py, fx, fy) > 2 then
-            gfx.drawLine(px, py, fx, fy)
-        end
+        gfx.drawPolygon(table.unpack(verticies))
     gfx.popContext()
     
     self.camImageTable = gfx.imagetable.new(360)
