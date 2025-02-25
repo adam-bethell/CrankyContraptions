@@ -20,18 +20,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
+--[[
+	Adam: I'm making a lot of tweaks and changes here so don't blame the original author for things not working!
+]]--
+
 local floor = math.floor
 local min, max = math.min, math.max
 
-local _PACKAGE, common_local = (...):match("^(.+)%.[^%.]+"), common
-if not (type(common) == 'table' and common.class and common.instance) then
-	assert(common_class ~= false, 'No class commons specification available.')
-	require(_PACKAGE .. '.class')
-	common_local, common = common, common_local
-end
-local vector  = require(_PACKAGE .. '.vector-light')
-
-local Spatialhash = {}
+import "HC/vector-light"
+class("Spatialhash").extends()
 function Spatialhash:init(cell_size)
 	self.cell_size = cell_size or 100
 	self.cells = {}
@@ -181,23 +178,3 @@ function Spatialhash:intersectionsWithSegment(x1, y1, x2, y2)
 
 	return points
 end
-
-function Spatialhash:draw(how, show_empty, print_key)
-	if show_empty == nil then show_empty = true end
-	for k1,v in pairs(self.cells) do
-		for k2,cell in pairs(v) do
-			local is_empty = (next(cell) == nil)
-			if show_empty or not is_empty then
-				local x = k1 * self.cell_size
-				local y = k2 * self.cell_size
-				love.graphics.rectangle(how or 'line', x,y, self.cell_size, self.cell_size)
-
-				if print_key then
-					love.graphics.print(("%d:%d"):format(k1,k2), x+3,y+3)
-				end
-			end
-		end
-	end
-end
-
-return common_local.class('Spatialhash', Spatialhash)

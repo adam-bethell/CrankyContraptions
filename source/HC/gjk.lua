@@ -24,15 +24,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
-local _PACKAGE = (...):match("^(.+)%.[^%.]+")
-local vector  = require(_PACKAGE .. '.vector-light')
+--[[
+	Adam: I'm making a lot of tweaks and changes here so don't blame the original author for things not working!
+]]--
+
+import "HC/vector-light"
 local huge, abs = math.huge, math.abs
 
 local simplex, edge = {}, {}
 
 local function support(shape_a, shape_b, dx, dy)
 	local x,y = shape_a:support(dx,dy)
-	return vector.sub(x,y, shape_b:support(-dx, -dy))
+	return Vector_light.sub(x,y, shape_b:support(-dx, -dy))
 end
 
 -- returns closest edge to the origin
@@ -45,9 +48,9 @@ local function closest_edge(n)
 		local bx,by = simplex[k], simplex[k+1]
 		i = k
 
-		local ex,ey = vector.perpendicular(bx-ax, by-ay)
-		local nx,ny = vector.normalize(ex,ey)
-		local d = vector.dot(ax,ay, nx,ny)
+		local ex,ey = Vector_light.perpendicular(bx-ax, by-ay)
+		local nx,ny = Vector_light.normalize(ex,ey)
+		local d = Vector_light.dot(ax,ay, nx,ny)
 
 		if d < edge.dist then
 			edge.dist = d
@@ -59,8 +62,8 @@ end
 
 local function EPA(shape_a, shape_b)
 	-- make sure simplex is oriented counter clockwise
-	local cx,cy, bx,by, ax,ay = unpack(simplex, 1, 6)
-	if vector.dot(ax-bx,ay-by, cx-bx,cy-by) < 0 then
+	local cx,cy, bx,by, ax,ay = table.unpack(simplex, 1, 6)
+	if Vector_light.dot(ax-bx,ay-by, cx-bx,cy-by) < 0 then
 		simplex[1],simplex[2] = ax,ay
 		simplex[5],simplex[6] = cx,cy
 	end
@@ -68,10 +71,12 @@ local function EPA(shape_a, shape_b)
 	-- the expanding polytype algorithm
 	local is_either_circle = shape_a._center or shape_b._center
 	local last_diff_dist, n = huge, 6
+
+	local counter = 1
 	while true do
 		closest_edge(n)
 		local px,py = support(shape_a, shape_b, edge.nx, edge.ny)
-		local d = vector.dot(px,py, edge.nx, edge.ny)
+		local d = Vector_light.dot(px,py, edge.nx, edge.ny)
 
 		local diff_dist = d - edge.dist
 		if diff_dist < 1e-6 or (is_either_circle and abs(last_diff_dist - diff_dist) < 1e-10) then
@@ -86,6 +91,12 @@ local function EPA(shape_a, shape_b)
 		simplex[edge.i+0] = px
 		simplex[edge.i+1] = py
 		n = n + 2
+
+		if counter > 50 then
+			print("EPA failed likely due to degenerate case")
+			return nil
+		end
+		counter += 1 
 	end
 end
 
@@ -93,13 +104,13 @@ end
 -- B o------o A   since A is the furthest point on the MD
 --   :      :     in direction of the origin.
 local function do_line()
-	local bx,by, ax,ay = unpack(simplex, 1, 4)
+	local bx,by, ax,ay = table.unpack(simplex, 1, 4)
 
 	local abx,aby = bx-ax, by-ay
 
-	local dx,dy = vector.perpendicular(abx,aby)
+	local dx,dy = Vector_light.perpendicular(abx,aby)
 
-	if vector.dot(dx,dy, -ax,-ay) < 0 then
+	if Vector_light.dot(dx,dy, -ax,-ay) < 0 then
 		dx,dy = -dx,-dy
 	end
 	return dx,dy
@@ -113,17 +124,17 @@ end
 --  o-'  3
 -- C '.
 local function do_triangle()
-	local cx,cy, bx,by, ax,ay = unpack(simplex, 1, 6)
+	local cx,cy, bx,by, ax,ay = table.unpack(simplex, 1, 6)
 	local aox,aoy = -ax,-ay
 	local abx,aby = bx-ax, by-ay
 	local acx,acy = cx-ax, cy-ay
 
 	-- test region 1
-	local dx,dy = vector.perpendicular(abx,aby)
-	if vector.dot(dx,dy, acx,acy) > 0 then
+	local dx,dy = Vector_light.perpendicular(abx,aby)
+	if Vector_light.dot(dx,dy, acx,acy) > 0 then
 		dx,dy = -dx,-dy
 	end
-	if vector.dot(dx,dy, aox,aoy) > 0 then
+	if Vector_light.dot(dx,dy, aox,aoy) > 0 then
 		-- simplex = {bx,by, ax,ay}
 		simplex[1], simplex[2] = bx,by
 		simplex[3], simplex[4] = ax,ay
@@ -131,11 +142,11 @@ local function do_triangle()
 	end
 
 	-- test region 3
-	dx,dy = vector.perpendicular(acx,acy)
-	if vector.dot(dx,dy, abx,aby) > 0 then
+	dx,dy = Vector_light.perpendicular(acx,acy)
+	if Vector_light.dot(dx,dy, abx,aby) > 0 then
 		dx,dy = -dx,-dy
 	end
-	if vector.dot(dx,dy, aox, aoy) > 0 then
+	if Vector_light.dot(dx,dy, aox, aoy) > 0 then
 		-- simplex = {cx,cy, ax,ay}
 		simplex[3], simplex[4] = ax,ay
 		return 4, dx,dy
@@ -145,7 +156,7 @@ local function do_triangle()
 	return 6
 end
 
-local function GJK(shape_a, shape_b)
+function GJK(shape_a, shape_b)
 	local ax,ay = support(shape_a, shape_b, 1,0)
 	if ax == 0 and ay == 0 then
 		-- only true if shape_a and shape_b are touching in a vertex, e.g.
@@ -165,7 +176,7 @@ local function GJK(shape_a, shape_b)
 
 	-- first iteration: line case
 	ax,ay = support(shape_a, shape_b, dx,dy)
-	if vector.dot(ax,ay, dx,dy) <= 0 then
+	if Vector_light.dot(ax,ay, dx,dy) <= 0 then
 		return false
 	end
 
@@ -178,7 +189,7 @@ local function GJK(shape_a, shape_b)
 	while true do
 		ax,ay = support(shape_a, shape_b, dx,dy)
 
-		if vector.dot(ax,ay, dx,dy) <= 0 then
+		if Vector_light.dot(ax,ay, dx,dy) <= 0 then
 			return false
 		end
 
@@ -186,9 +197,11 @@ local function GJK(shape_a, shape_b)
 		n, dx, dy = do_triangle()
 
 		if n == 6 then
-			return true, EPA(shape_a, shape_b)
+			local a, b = EPA(shape_a, shape_b)
+			if a == nil then
+				return false
+			end
+			return true, a, b
 		end
 	end
 end
-
-return GJK

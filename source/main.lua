@@ -13,7 +13,11 @@ local gfx <const> = pd.graphics
 
 math.randomseed(pd.getSecondsSinceEpoch())
 
-local level = Level()
+
+import "HC/world"
+local test = World()
+
+--local level = Level()
 
 function pd.update()
     gfx.sprite.update()

@@ -24,13 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
-local _PACKAGE, common_local = (...):match("^(.+)%.[^%.]+"), common
-if not (type(common) == 'table' and common.class and common.instance) then
-	assert(common_class ~= false, 'No class commons specification available.')
-	require(_PACKAGE .. '.class')
-	common_local, common = common, common_local
-end
-local vector = require(_PACKAGE .. '.vector-light')
+--[[
+	Adam: I'm making a lot of tweaks and changes here so don't blame the original author for things not working!
+]]--
+
+import "HC/vector-light"
 
 ----------------------------
 -- Private helper functions
@@ -45,7 +43,7 @@ end
 
 -- returns true if three vertices lie on a line
 local function areCollinear(p, q, r, eps)
-	return math.abs(vector.det(q.x-p.x, q.y-p.y,  r.x-p.x,r.y-p.y)) <= (eps or 1e-32)
+	return math.abs(Vector_light.det(q.x-p.x, q.y-p.y,  r.x-p.x,r.y-p.y)) <= (eps or 1e-32)
 end
 -- remove vertices that lie on a line
 local function removeCollinear(vertices)
@@ -73,14 +71,14 @@ end
 
 -- returns true if three points make a counter clockwise turn
 local function ccw(p, q, r)
-	return vector.det(q.x-p.x, q.y-p.y,  r.x-p.x, r.y-p.y) >= 0
+	return Vector_light.det(q.x-p.x, q.y-p.y,  r.x-p.x, r.y-p.y) >= 0
 end
 
 -- test wether a and b lie on the same side of the line c->d
 local function onSameSide(a,b, c,d)
 	local px, py = d.x-c.x, d.y-c.y
-	local l = vector.det(px,py,  a.x-c.x, a.y-c.y)
-	local m = vector.det(px,py,  b.x-c.x, b.y-c.y)
+	local l = Vector_light.det(px,py,  a.x-c.x, a.y-c.y)
+	local m = Vector_light.det(px,py,  b.x-c.x, b.y-c.y)
 	return l*m >= 0
 end
 
@@ -139,7 +137,7 @@ end
 -----------------
 -- Polygon class
 --
-local Polygon = {}
+class("Polygon").extends()
 function Polygon:init(...)
 	local vertices = removeCollinear( toVertexList({}, ...) )
 	assert(#vertices >= 3, "Need at least 3 non collinear points to build polygon (got "..#vertices..")")
@@ -159,7 +157,8 @@ function Polygon:init(...)
 	-- assert polygon is not self-intersecting
 	-- outer: only need to check segments #vert;1, 1;2, ..., #vert-3;#vert-2
 	-- inner: only need to check unconnected segments
-	local q,p = vertices[#vertices]
+	local p = nil
+	q = vertices[#vertices]
 	for i = 1,#vertices-2 do
 		p, q = q, vertices[i]
 		for k = i+1,#vertices-1 do
@@ -174,11 +173,11 @@ function Polygon:init(...)
 
 	-- compute polygon area and centroid
 	local p,q = vertices[#vertices], vertices[1]
-	local det = vector.det(p.x,p.y, q.x,q.y) -- also used below
+	local det = Vector_light.det(p.x,p.y, q.x,q.y) -- also used below
 	self.area = det
 	for i = 2,#vertices do
 		p,q = q,vertices[i]
-		self.area = self.area + vector.det(p.x,p.y, q.x,q.y)
+		self.area = self.area + Vector_light.det(p.x,p.y, q.x,q.y)
 	end
 	self.area = self.area / 2
 
@@ -186,7 +185,7 @@ function Polygon:init(...)
 	self.centroid = {x = (p.x+q.x)*det, y = (p.y+q.y)*det}
 	for i = 2,#vertices do
 		p,q = q,vertices[i]
-		det = vector.det(p.x,p.y, q.x,q.y)
+		det = Vector_light.det(p.x,p.y, q.x,q.y)
 		self.centroid.x = self.centroid.x + (p.x+q.x) * det
 		self.centroid.y = self.centroid.y + (p.y+q.y) * det
 	end
@@ -197,7 +196,7 @@ function Polygon:init(...)
 	self._radius = 0
 	for i = 1,#vertices do
 		self._radius = math.max(self._radius,
-			vector.dist(vertices[i].x,vertices[i].y, self.centroid.x,self.centroid.y))
+			Vector_light.dist(vertices[i].x,vertices[i].y, self.centroid.x,self.centroid.y))
 	end
 end
 local newPolygon
@@ -210,12 +209,12 @@ function Polygon:unpack()
 		v[2*i-1] = self.vertices[i].x
 		v[2*i]   = self.vertices[i].y
 	end
-	return unpack(v)
+	return table.unpack(v)
 end
 
 -- deep copy of the polygon
 function Polygon:clone()
-	return Polygon( self:unpack() )
+	return Polygon(self:unpack())
 end
 
 -- get bounding box
@@ -232,6 +231,11 @@ function Polygon:bbox()
 	end
 
 	return ulx,uly, lrx,lry
+end
+
+function Polygon:xywh()
+	local x1, y1, x2, y2 = self:bbox()
+	return x1, y1, x2-x1, y2-y1
 end
 
 -- a polygon is convex if all edges are oriented ccw
@@ -278,10 +282,10 @@ function Polygon:rotate(angle, cx, cy)
 	end
 	for i,v in ipairs(self.vertices) do
 		-- v = (v - center):rotate(angle) + center
-		v.x,v.y = vector.add(cx,cy, vector.rotate(angle, v.x-cx, v.y-cy))
+		v.x,v.y = Vector_light.add(cx,cy, Vector_light.rotate(angle, v.x-cx, v.y-cy))
 	end
 	local v = self.centroid
-	v.x,v.y = vector.add(cx,cy, vector.rotate(angle, v.x-cx, v.y-cy))
+	v.x,v.y = Vector_light.add(cx,cy, Vector_light.rotate(angle, v.x-cx, v.y-cy))
 end
 
 function Polygon:scale(s, cx,cy)
@@ -290,7 +294,7 @@ function Polygon:scale(s, cx,cy)
 	end
 	for i,v in ipairs(self.vertices) do
 		-- v = (v - center) * s + center
-		v.x,v.y = vector.add(cx,cy, vector.mul(s, v.x-cx, v.y-cy))
+		v.x,v.y = Vector_light.add(cx,cy, Vector_light.mul(s, v.x-cx, v.y-cy))
 	end
 	self._radius = self._radius * s
 end
@@ -315,7 +319,7 @@ function Polygon:triangulate()
 	end
 
 	local triangles = {}
-	local n_vert, current, skipped, next, prev = #vertices, 1, 0
+	local n_vert, current, skipped, next, prev = #vertices, 1, 0, nil, nil
 	while n_vert > 3 do
 		next, prev = next_idx[current], prev_idx[current]
 		local p,q,r = vertices[prev], vertices[current], vertices[next]
@@ -361,7 +365,7 @@ function Polygon:mergedWith(other)
 		ret[#ret+1] = self.vertices[i].y
 	end
 
-	return newPolygon(unpack(ret))
+	return newPolygon(table.unpack(ret))
 end
 
 -- split polygon into convex polygons.
@@ -422,7 +426,7 @@ function Polygon:contains(x,y)
 end
 
 function Polygon:intersectionsWithRay(x,y, dx,dy)
-	local nx,ny = vector.perpendicular(dx,dy)
+	local nx,ny = Vector_light.perpendicular(dx,dy)
 	local wx,wy,det
 
 	local ts = {} -- ray parameters of each intersection
@@ -430,14 +434,14 @@ function Polygon:intersectionsWithRay(x,y, dx,dy)
 	for i = 1, #self.vertices do
 		q1,q2 = q2,self.vertices[i]
 		wx,wy = q2.x - q1.x, q2.y - q1.y
-		det = vector.det(dx,dy, wx,wy)
+		det = Vector_light.det(dx,dy, wx,wy)
 
 		if det ~= 0 then
 			-- there is an intersection point. check if it lies on both
 			-- the ray and the segment.
 			local rx,ry = q2.x - x, q2.y - y
-			local l = vector.det(rx,ry, wx,wy) / det
-			local m = vector.det(dx,dy, rx,ry) / det
+			local l = Vector_light.det(rx,ry, wx,wy) / det
+			local m = Vector_light.det(dx,dy, rx,ry) / det
 			if m >= 0 and m <= 1 then
 				-- we cannot jump out early here (i.e. when l > tmin) because
 				-- the polygon might be concave
@@ -447,10 +451,10 @@ function Polygon:intersectionsWithRay(x,y, dx,dy)
 			-- lines parralel or incident. get distance of line to
 			-- anchor point. if they are incident, check if an endpoint
 			-- lies on the ray
-			local dist = vector.dot(q1.x-x,q1.y-y, nx,ny)
+			local dist = Vector_light.dot(q1.x-x,q1.y-y, nx,ny)
 			if dist == 0 then
-				local l = vector.dot(dx,dy, q1.x-x,q1.y-y)
-				local m = vector.dot(dx,dy, q2.x-x,q2.y-y)
+				local l = Vector_light.dot(dx,dy, q1.x-x,q1.y-y)
+				local m = Vector_light.dot(dx,dy, q2.x-x,q2.y-y)
 				if l >= m then
 					ts[#ts+1] = l
 				else
@@ -470,7 +474,3 @@ function Polygon:intersectsRay(x,y, dx,dy)
 	end
 	return tmin ~= math.huge, tmin
 end
-
-Polygon = common_local.class('Polygon', Polygon)
-newPolygon = function(...) return common_local.instance(Polygon, ...) end
-return Polygon

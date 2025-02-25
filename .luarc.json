@@ -28,7 +28,15 @@
         "CamFollowerInfoPanel",
         "Level",
         "World",
-        "Beam"],
+        "Beam",
+        "Shape",
+        "HC",
+        "Spatialhash",
+        "Polygon",
+        "ConvexPolygonShape",
+        "ConcavePolygonShape",
+        "CircleShape",
+        "PointShape"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
@@ -45,5 +53,8 @@
     "runtime.version": "Lua 5.4",
     "workspace.library": [
         "C:/Users/Adam/Documents/playdate-luacats"
+    ],
+    "diagnostics.disable": [
+        "cast-local-type"
     ]
 }

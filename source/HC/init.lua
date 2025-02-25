@@ -24,24 +24,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
-local _NAME, common_local = ..., common
-if not (type(common) == 'table' and common.class and common.instance) then
-	assert(common_class ~= false, 'No class commons specification available.')
-	require(_NAME .. '.class')
-end
-local Shapes      = require(_NAME .. '.shapes')
-local Spatialhash = require(_NAME .. '.spatialhash')
+--[[
+	Adam: I'm making a lot of tweaks and changes here so don't blame the original author for things not working!
+]]--
 
--- reset global table `common' (required by class commons)
-if common_local ~= common then
-	common_local, common = common, common_local
-end
+import "HC/shapes"
+import "HC/spatialhash"
 
-local newPolygonShape = Shapes.newPolygonShape
-local newCircleShape  = Shapes.newCircleShape
-local newPointShape   = Shapes.newPointShape
+local newPolygonShape = Shape.newPolygonShape
+local newCircleShape  = Shape.newCircleShape
+local newPointShape   = Shape.newPointShape
 
-local HC = {}
+class("HC").extends()
 function HC:init(cell_size)
   self:resetHash(cell_size)
 end
@@ -50,7 +44,7 @@ function HC:hash() return self._hash end -- consistent interface with global HC 
 
 -- spatial hash management
 function HC:resetHash(cell_size)
-	self._hash = common_local.instance(Spatialhash, cell_size or 100)
+	self._hash = Spatialhash(cell_size or 100)
 	return self
 end
 
@@ -83,7 +77,7 @@ end
 
 -- shape constructors
 function HC:polygon(...)
-	return self:register(newPolygonShape(...))
+	return self:register(newPolygonShape(nil, ...))
 end
 
 function HC:rectangle(x,y,w,h)
@@ -91,11 +85,11 @@ function HC:rectangle(x,y,w,h)
 end
 
 function HC:circle(x,y,r)
-	return self:register(newCircleShape(x,y,r))
+	return self:register(newCircleShape(nil,x,y,r))
 end
 
 function HC:point(x,y)
-	return self:register(newPointShape(x,y))
+	return self:register(newPointShape(nil,x,y))
 end
 
 -- collision detection
@@ -121,7 +115,7 @@ end
 function HC:raycast(x, y, dx, dy, range)
 	local dxr, dyr = dx * range, dy * range
 	local bbox = { x + dxr , y + dyr, x, y }
-	local candidates = self._hash:inSameCells(unpack(bbox))
+	local candidates = self._hash:inSameCells(table.unpack(bbox))
 
 	for col in pairs(candidates) do
 		local rparams = col:intersectionsWithRay(x, y, dx, dy)
@@ -151,25 +145,3 @@ function HC:shapesAt(x, y)
 	end
 	return candidates
 end
-
--- the class and the instance
-HC = common_local.class('HardonCollider', HC)
-local instance = common_local.instance(HC)
-
--- the module
-return setmetatable({
-	new       = function(...) return common_local.instance(HC, ...) end,
-	resetHash = function(...) return instance:resetHash(...) end,
-	register  = function(...) return instance:register(...) end,
-	remove    = function(...) return instance:remove(...) end,
-
-	polygon   = function(...) return instance:polygon(...) end,
-	rectangle = function(...) return instance:rectangle(...) end,
-	circle    = function(...) return instance:circle(...) end,
-	point     = function(...) return instance:point(...) end,
-
-	neighbors  = function(...) return instance:neighbors(...) end,
-	collisions = function(...) return instance:collisions(...) end,
-	shapesAt   = function(...) return instance:shapesAt(...) end,
-	hash       = function() return instance.hash() end,
-}, {__call = function(_, ...) return common_local.instance(HC, ...) end})

@@ -24,115 +24,90 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
+--[[
+	Adam: I'm making a lot of tweaks and changes here so don't blame the original author for things not working!
+]]--
+
 local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 
-local function str(x,y)
+Vector_light = {}
+
+function Vector_light.str(x,y)
 	return "("..tonumber(x)..","..tonumber(y)..")"
 end
 
-local function mul(s, x,y)
+function Vector_light.mul(s, x,y)
 	return s*x, s*y
 end
 
-local function div(s, x,y)
+function Vector_light.div(s, x,y)
 	return x/s, y/s
 end
 
-local function add(x1,y1, x2,y2)
+function Vector_light.add(x1,y1, x2,y2)
 	return x1+x2, y1+y2
 end
 
-local function sub(x1,y1, x2,y2)
+function Vector_light.sub(x1,y1, x2,y2)
 	return x1-x2, y1-y2
 end
 
-local function permul(x1,y1, x2,y2)
+function Vector_light.permul(x1,y1, x2,y2)
 	return x1*x2, y1*y2
 end
 
-local function dot(x1,y1, x2,y2)
+function Vector_light.dot(x1,y1, x2,y2)
 	return x1*x2 + y1*y2
 end
 
-local function det(x1,y1, x2,y2)
+function Vector_light.det(x1,y1, x2,y2)
 	return x1*y2 - y1*x2
 end
 
-local function eq(x1,y1, x2,y2)
+function Vector_light.eq(x1,y1, x2,y2)
 	return x1 == x2 and y1 == y2
 end
 
-local function lt(x1,y1, x2,y2)
+function Vector_light.lt(x1,y1, x2,y2)
 	return x1 < x2 or (x1 == x2 and y1 < y2)
 end
 
-local function le(x1,y1, x2,y2)
+function Vector_light.le(x1,y1, x2,y2)
 	return x1 <= x2 and y1 <= y2
 end
 
-local function len2(x,y)
+function Vector_light.len2(x,y)
 	return x*x + y*y
 end
 
-local function len(x,y)
+function Vector_light.len(x,y)
 	return sqrt(x*x + y*y)
 end
 
-local function dist(x1,y1, x2,y2)
-	return len(x1-x2, y1-y2)
+function Vector_light.dist(x1,y1, x2,y2)
+	return Vector_light.len(x1-x2, y1-y2)
 end
 
-local function normalize(x,y)
-	local l = len(x,y)
+function Vector_light.normalize(x,y)
+	local l = Vector_light.len(x,y)
 	return x/l, y/l
 end
 
-local function rotate(phi, x,y)
+function Vector_light.rotate(phi, x,y)
 	local c, s = cos(phi), sin(phi)
 	return c*x - s*y, s*x + c*y
 end
 
-local function perpendicular(x,y)
+function Vector_light.perpendicular(x,y)
 	return -y, x
 end
 
-local function project(x,y, u,v)
+function Vector_light.project(x,y, u,v)
 	local s = (x*u + y*v) / (u*u + v*v)
 	return s*u, s*v
 end
 
-local function mirror(x,y, u,v)
+function Vector_light.mirror(x,y, u,v)
 	local s = 2 * (x*u + y*v) / (u*u + v*v)
 	return s*u - x, s*v - y
 end
-
-
--- the module
-return {
-	str = str,
-
-	-- arithmetic
-	mul    = mul,
-	div    = div,
-	add    = add,
-	sub    = sub,
-	permul = permul,
-	dot    = dot,
-	det    = det,
-	cross  = det,
-
-	-- relation
-	eq = eq,
-	lt = lt,
-	le = le,
-
-	-- misc operations
-	len2          = len2,
-	len           = len,
-	dist          = dist,
-	normalize     = normalize,
-	rotate        = rotate,
-	perpendicular = perpendicular,
-	project       = project,
-	mirror        = mirror,
-}
