@@ -18,6 +18,12 @@ function Level:init()
     self.camShaft = CamShaft()
     self.camShaft:setFocus(false)
 
+    self.world = World()
+
+    for i, v in ipairs(self.camShaft:getSockets()) do
+        self.world:addCircle(v, 10, math.random(-10, 10))
+    end
+
     self.selections = {}
     self.selections.kSelectionCamShaft = 1
     self.selections.kSelectionWorld = 2
@@ -35,6 +41,9 @@ function Level:init()
     self.selectionSprite:setVisible(true)
 
     self:add()
+
+    -- Simulate pressing A to focus the cam shaft
+    self:giveFocusToSelection()
 end
 
 function Level:getSelectionPosition()

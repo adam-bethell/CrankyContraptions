@@ -20,10 +20,23 @@ function World:init()
 
     self.floor = Rigidbody.newRectangle(200, 204, 400, 72, 0, {x=0, y=0}, 1, self.hc)
     self.floor:setVisible(false)
-    self.circle = Rigidbody.newCircle(100, 100, 10, 0, {x=0, y=0}, 0.7, self.hc)
-    --printTable(self.circle)
+    self.floor:setStatic(true)
+    self.ceiling = Rigidbody.newRectangle(200, -50, 400, 100, 0, {x=0, y=0}, 1, self.hc)
+    self.ceiling:setVisible(false)
+    self.ceiling:setStatic(true)
+    self.leftWall = Rigidbody.newRectangle(-50, 120, 100, 240, 0, {x=0, y=0}, 1, self.hc)
+    self.leftWall:setVisible(false)
+    self.leftWall:setStatic(true)
+    self.rightWall = Rigidbody.newRectangle(450, 120, 100, 240, 0, {x=0, y=0}, 1, self.hc)
+    self.rightWall:setVisible(false)
+    self.rightWall:setStatic(true)
+    self.circle = Rigidbody.newCircle(25, 25, 10, 0, {x=3, y=0}, 0.9, self.hc)
+    
     self.rbs = {
         self.floor,
+        self.ceiling,
+        self.leftWall,
+        self.rightWall,
         self.circle
     }
 
@@ -33,11 +46,26 @@ function World:init()
     self:add()
 end
 
+function World:addCircle(socket, radius)
+    local c = Rigidbody.newCircle(socket.x, socket.y, radius, 0, {x=0, y=0}, 1, self.hc)
+    c:setStatic(true)
+    c.position = socket
+    self.rbs[#self.rbs+1] = c
+end
+function World:addRect(socket, width, height, rotation)
+    local c = Rigidbody.newRectangle(socket.x, socket.y, width, height, rotation, {x=0, y=0}, 1, self.hc)
+    c:setStatic(true)
+    c.position = socket
+    self.rbs[#self.rbs+1] = c
+end
+
 function World:update()
     --print("Velocity:",self.circle.velocity.x,self.circle.velocity.y)
     -- Apply gravity to velocity
-    self.circle:update()
-
+    for i, v in ipairs(self.rbs) do
+        v:update()
+    end
+    
     self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
         -- Collisions: being done here so debug info can be drawn

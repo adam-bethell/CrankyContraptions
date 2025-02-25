@@ -18,14 +18,14 @@ Rigidbody.gravity = {
 function Rigidbody:init(x, y, radius, width, height, rotate, velocity, restitution)
     self.collider = nil
     self.type = nil
-    self.x = x
-    self.y = y
+    self.position = {x = x, y = y}
     self.radius = radius
     self.width = width
     self.height = height
     self.rotation = 0 + rotate
     self.velocity = velocity
     self.restitution = restitution
+    self.isStatic = false
 
     -- Drawing
     self.visible = true
@@ -34,7 +34,7 @@ end
 function Rigidbody.newCircle(x, y, radius, rotate, velocity, restitution, hc)
     local rb = Rigidbody(x, y, radius, nil, nil, rotate, velocity, restitution)
     rb.collider = hc:circle(x, y, radius)
-    rb.collider:rotate(rotate)
+    rb.collider:rotate(math.rad(rotate))
     rb.type = Rigidbody.type.kCircle
     return rb
 end
@@ -42,30 +42,38 @@ end
 function Rigidbody.newRectangle(x, y, width, height, rotate, velocity, restitution, hc)
     local rb = Rigidbody(x, y, nil, width, height, rotate, velocity, restitution)
     rb.collider = hc:rectangle(x - width/2, y - height/2, width, height)
-    rb.collider:rotate(rotate)
+    rb.collider:rotate(math.rad(rotate))
     rb.type = Rigidbody.type.kRectangle
     return rb
 end
 
 function Rigidbody:moveBy(dx, dy)
-    self.x += dx
-    self.y += dy
-    self.collider:moveTo(self.x, self.y)
+    self.position.x += dx
+    self.position.y += dy
+    self.collider:moveTo(self.position.x, self.position.y)
 end
 
 function Rigidbody:rotate(degrees)
     self.rotation += degrees
-    self.collider:rotate(degrees)
+    self.collider:rotate(math.rad(degrees))
 end
 
 function Rigidbody:update()
-    self.velocity.x += Rigidbody.gravity.x
-    self.velocity.y += Rigidbody.gravity.y
-    self:moveBy(self.velocity.x, self.velocity.y)
+    if self.isStatic then
+        self.collider:moveTo(self.position.x, self.position.y)
+    else
+        self.velocity.x += Rigidbody.gravity.x
+        self.velocity.y += Rigidbody.gravity.y
+        self:moveBy(self.velocity.x, self.velocity.y)
+    end
 end
 
 function Rigidbody:setVisible(visible)
     self.visible = visible
+end
+
+function Rigidbody:setStatic(value)
+    self.isStatic = value
 end
 
 function Rigidbody:draw()
@@ -74,7 +82,7 @@ function Rigidbody:draw()
     end
 
     if self.type == Rigidbody.type.kCircle then
-        gfx.fillCircleAtPoint(self.x, self.y, self.radius)
+        gfx.fillCircleAtPoint(self.position.x, self.position.y, self.radius)
     elseif self.type == Rigidbody.type.kRectangle then
         gfx.fillPolygon(self.collider._polygon:unpack())
     end

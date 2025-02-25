@@ -13,9 +13,6 @@ local gfx <const> = pd.graphics
 
 math.randomseed(pd.getSecondsSinceEpoch())
 
-
-import "scripts/physics/world"
-local test = World()
 local level = Level()
 
 function pd.update()

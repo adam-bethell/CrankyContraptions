@@ -136,7 +136,7 @@ function Cam:generateCamImageTable()
         local i = 0
         local v = 1
         for i=0, 359 do
-            x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
+            local x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
             verticies[v] = math.floor(x)
             verticies[v+1] = math.floor(y)
             v += 2
@@ -214,7 +214,7 @@ function Cam:pointToDeg(index)
 end
 
 function Cam:setRotationsPerCrank(val)
-    self.rotationsPerCrank = math.clamp(val, 0.1, 5)
+    self.rotationsPerCrank = math.clamp(val, 0.1, 2)
     self.rotationCoeff = math.floor(self.rotationsPerCrank * 10) / 10
 end
 

@@ -63,7 +63,7 @@ end
 class("CircleShape").extends(Shape)
 
 function CircleShape:init(cx,cy, radius)
-	CircleShape.super.init(self)
+	CircleShape.super.init(self, 'circle')
 	self._center = {x = cx, y = cy}
 	self._radius = radius
 end

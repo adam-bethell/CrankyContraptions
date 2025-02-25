@@ -23,8 +23,8 @@ function Collisions.resolveCollision(a, b, separatingVector)
     end
 
     --- Move A back outside of the object it colided with
-    a.x += separatingVector.x
-    a.y += separatingVector.y
+    a.position.x += separatingVector.x
+    a.position.y += separatingVector.y
 
     -- Apply Friction
     a.velocity.x, a.velocity.y = Vector_light.mul(0.9, a.velocity.x, a.velocity.y)
