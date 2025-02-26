@@ -37,7 +37,8 @@
         "ConcavePolygonShape",
         "CircleShape",
         "PointShape",
-        "Rigidbody"],
+        "Rigidbody",
+        "PinnedRect"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },

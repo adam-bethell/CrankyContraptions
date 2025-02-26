@@ -20,9 +20,12 @@ function Level:init()
 
     self.world = World()
 
-    for i, v in ipairs(self.camShaft:getSockets()) do
-        self.world:addCircle(v, 10, math.random(-10, 10))
-    end
+    local s1, s2, s3, s4 = table.unpack(self.camShaft:getSockets())
+    --[[ for i, v in ipairs(self.camShaft:getSockets()) do
+        self.world:addRect(v, 50, 20, math.random(-10, 10))
+    end ]]
+    self.world:addPinnedRect(s1, s2, 10)
+    self.world:addPinnedRect(s3, s4, 10)
 
     self.selections = {}
     self.selections.kSelectionCamShaft = 1
@@ -42,7 +45,7 @@ function Level:init()
 
     self:add()
 
-    -- Simulate pressing A to focus the cam shaft
+    -- The detfault selection is the camshaft at this point
     self:giveFocusToSelection()
 end
 

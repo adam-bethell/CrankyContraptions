@@ -6,6 +6,7 @@ import "CoreLibs/timer"
 import "HC/init"
 import "HC/vector-light"
 import "scripts/physics/rigidbody"
+import "scripts/physics/pinnedRect"
 import "scripts/physics/collisions"
 
 local pd <const> = playdate
@@ -59,6 +60,11 @@ function World:addRect(socket, width, height, rotation)
     self.rbs[#self.rbs+1] = c
 end
 
+function World:addPinnedRect(s1, s2, height)
+    local c = PinnedRect(s1, s2, height, self.hc)
+    self.rbs[#self.rbs+1] = c
+end
+
 function World:update()
     --print("Velocity:",self.circle.velocity.x,self.circle.velocity.y)
     -- Apply gravity to velocity
@@ -70,7 +76,11 @@ function World:update()
     gfx.pushContext(self.image)
         -- Collisions: being done here so debug info can be drawn
         for shape, delta in pairs(self.hc:collisions(self.circle.collider)) do
-            Collisions.resolveCollision(self.circle, self:getRigibodyWithCollider(shape), delta)
+            local rb = self:getRigibodyWithCollider(shape)
+            if rb ~= nil then
+                assert(rb.velocity ~= nil)
+                Collisions.resolveCollision(self.circle, rb, delta)
+            end
         end
 
         self:drawRigidbodies()
