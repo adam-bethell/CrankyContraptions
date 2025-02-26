@@ -69,6 +69,8 @@ function CamFollower:draw()
         gfx.setPattern({ 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 })
         local rodHeight = boxTop - (self.output)
         gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, rodHeight)
+        gfx.fillCircleAtPoint(self.image.width / 2, rodHeight, 5)
+        assert(self.x >= 0 and self.x <= 400 and rodHeight >= 0 and rodHeight <= 240)
         self.socket.x = self.x
         self.socket.y = rodHeight
     gfx.popContext()

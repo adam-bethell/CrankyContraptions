@@ -40,6 +40,13 @@ function CamShaft:init(n)
         self.cams[i]:draw()
         x += 48
     end
+
+    self.linkages = {}
+    self.linkagesImage = gfx.image.new(400, 240)
+    self.linkagesSprite = gfx.sprite.new(self.linkagesImage)
+    self.linkagesSprite:moveTo(200, 120)
+    self.linkagesSprite:setZIndex(-10)
+    self.linkagesSprite:add()
     
     self.selectionRow = 1
     self.selection = 8
@@ -52,7 +59,7 @@ function CamShaft:init(n)
     self.selector:setZIndex(10)
     self.selector:add()
     self.selector:setVisible(false)
-    
+
     self.inUpdateShaft = false
     self.editorSelection = 1
     self.camEditor = nil
@@ -135,11 +142,13 @@ function CamShaft:updateShaft()
                 self.cams[i]:rotate(change)
                 self.cams[i]:draw()
             end
+            self:drawLinkages()
         else
             -- cam
             self.selector:moveTo(self.cams[self.selection]:getPosition())
             self.cams[self.selection]:rotate(change)
             self.cams[self.selection]:draw()
+            self:drawLinkages()
         end
     
         if pd.buttonJustPressed(pd.kButtonA) then
@@ -199,6 +208,7 @@ function CamShaft:updateCamEditor()
         cam:setPoints(self.camEditor:clonePoints())
         cam:setRotationsPerCrank(self.camEditor.rotationCoeff)
         cam:draw()
+        self:drawLinkages()
         self.camEditor:remove()
         self.camEditor = nil
         self.camInfoPanel:remove()
@@ -212,4 +222,22 @@ function CamShaft:getSockets()
         s[#s+1] = self.followers[i].socket
     end
     return s
+end
+
+function CamShaft:addLinkage(s1, l1, s2, l2)
+    local linkage = CamFollowerLinkage(s1, l1, s2, l2)
+    self.linkages[#self.linkages+1] = linkage
+    return linkage.s3
+end
+
+function CamShaft:drawLinkages()
+    self.linkagesImage:clear(gfx.kColorClear)
+    gfx.pushContext(self.linkagesImage)
+        gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
+        gfx.setLineWidth(2)
+        for i, v in ipairs(self.linkages) do
+            v:updateAndDraw()
+        end
+    gfx.popContext()
+    self.linkagesSprite:markDirty()
 end

@@ -60,8 +60,8 @@ function World:addRect(socket, width, height, rotation)
     self.rbs[#self.rbs+1] = c
 end
 
-function World:addPinnedRect(s1, s2, height)
-    local c = PinnedRect(s1, s2, height, self.hc)
+function World:addPinnedRect(s1, s2, length, height)
+    local c = PinnedRect(s1, s2, length, height, self.hc)
     self.rbs[#self.rbs+1] = c
 end
 

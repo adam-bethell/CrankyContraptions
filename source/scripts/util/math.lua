@@ -21,6 +21,15 @@ end
 math.getIntersectingPoint = function(ax, ay, ac, bx, by, bc)
     --Calculate the length AB.
     local ab = vector.distance(ax, ay, bx, by)
+    if (ac+bc<ab) then
+        -- No intersecting point possible. Strecth instead to midpoint of ab
+        local vx = bx-ax
+        local vy = by-ay
+        local c = ac/(ac+bc)
+        vx *= c
+        vy *= c
+        return ax+vx, ay+vy
+    end
     --Picture a line that goes straight from A to B.
     --The length D tells you how far along this line C would be if it were directly on this line. 
     --This helps us find the first part of C's position. 

@@ -38,7 +38,8 @@
         "CircleShape",
         "PointShape",
         "Rigidbody",
-        "PinnedRect"],
+        "PinnedRect",
+        "CamFollowerLinkage"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
