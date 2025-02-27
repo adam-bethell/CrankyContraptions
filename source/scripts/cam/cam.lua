@@ -29,6 +29,8 @@ function Cam:init(x, y, zIndex)
     self.boxImage = nil
     self.shaftImage = nil
     self.selectionImage = nil
+    self.newImageTable = false
+    self.imageTablePopulationIndex = 2
     
     self.camSprite = gfx.sprite.new()
     self.camSprite:moveTo(self.x, self.y)
@@ -146,12 +148,33 @@ function Cam:generateCamImageTable()
     
     self.camImageTable = gfx.imagetable.new(360)
     self.camImageTable:setImage(1, self.camImage)
+    self.camImageTable:setImage(2, self.camImage)
+    self.imageTablePopulationIndex = 2
+    self.newImageTable = true
 end
 
 function Cam:generateCamRotation(phase)
+    if phase % 2 == 1 then
+        phase -= 1
+    end
     local img = self.camImage:rotatedImage(phase)
     self.camImageTable:setImage(phase+1, img)
+    self.camImageTable:setImage(phase+2, img)
     return img
+end
+
+function Cam:update()
+    if self.newImageTable then
+        if self.imageTablePopulationIndex <= 358 then
+            local img = self.camImageTable:getImage(self.imageTablePopulationIndex)
+            if img == nil then
+                self:generateCamRotation(self.imageTablePopulationIndex)
+            end
+            self.imageTablePopulationIndex +=2
+        else
+            self.newImageTable = false
+        end
+    end
 end
 
 function Cam:draw()

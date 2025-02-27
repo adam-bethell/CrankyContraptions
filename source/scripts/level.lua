@@ -22,15 +22,15 @@ function Level:init()
     self.world = World()
 
     local s1, s2, s3, s4, s5, s6, s7 = table.unpack(self.camShaft:getSockets())
-    self.world:addPinnedRect({x=0,y=0}, s1, 150, 10)
-    self.world:addPinnedRect(s1, s2, 60, 10)
-    self.world:addPinnedRect(s2, s3, 60, 10)
+    --self.world:addPinnedRect({x=0,y=0}, s1, 150, 10)
+    --self.world:addPinnedRect(s1, s2, 60, 10)
+    --self.world:addPinnedRect(s2, s3, 60, 10)
     local s8 = self.camShaft:addLinkage(s4, 35, s5, 35)
     local s9 = self.camShaft:addLinkage(s6, 50, s7, 20)
     local s10 = self.camShaft:addLinkage(s8, 50, s9, 50)
-    self.world:addPinnedRect(s3, s8, 60, 10)
+    --self.world:addPinnedRect(s3, s8, 60, 10)
     self.world:addPinnedRect(s8, s10, 100, 10)
-    self.world:addPinnedRect(s10, {x=400,y=0}, 150, 10)
+    --self.world:addPinnedRect(s10, {x=400,y=0}, 150, 10)
 
     self.selections = {}
     self.selections.kSelectionCamShaft = 1

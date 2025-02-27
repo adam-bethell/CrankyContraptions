@@ -23,7 +23,7 @@ function CamFollower:init(x, y)
     
     self.image = gfx.image.new(47, 240-(240-y))
     self:setImage(self.image)
-    self:setZIndex(-10)
+    self:setZIndex(-1)
     self:moveTo(x, self.image.height / 2)
     self:add()
 
@@ -56,12 +56,15 @@ function CamFollower:calculateOutput()
 end
 
 function CamFollower:draw()
-    self.image:clear(gfx.kColorWhite)
+    self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
         gfx.setLineWidth(2)
         -- Box
         local boxTop = self.image.height - (47/2)
         local rect = pd.geometry.rect.new(0, boxTop, 47, (47/2))
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(rect)
+        gfx.setColor(gfx.kColorBlack)
         gfx.drawRect(rect)
         rect:inset(2, 2)
         gfx.drawText(tostring(math.floor(self.input*10)), rect)

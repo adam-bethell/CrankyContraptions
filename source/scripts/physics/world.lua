@@ -17,7 +17,7 @@ class("World").extends(gfx.sprite)
 
 
 function World:init()
-    self.hc = HC()
+    self.hc = HC(150)
 
     self.floor = Rigidbody.newRectangle(200, 204, 400, 72, 0, {x=0, y=0}, 1, self.hc)
     self.floor:setVisible(false)
@@ -32,7 +32,7 @@ function World:init()
     self.rightWall:setVisible(false)
     self.rightWall:setStatic(true)
     self.circle = Rigidbody.newCircle(25, 25, 10, 0, {x=3, y=0}, 0.9, self.hc)
-    
+
     self.rbs = {
         self.floor,
         self.ceiling,
@@ -43,6 +43,7 @@ function World:init()
 
     self.image = gfx.image.new(400,240)
     self:setImage(self.image)
+    self:setZIndex(-2)
     self:moveTo(200,120)
     self:add()
 end
@@ -72,19 +73,18 @@ function World:update()
         v:update()
     end
     
+    -- To save on performance, we only check collisions every other frame
+    for shape, delta in pairs(self.hc:collisions(self.circle.collider)) do
+        local rb = self:getRigibodyWithCollider(shape)
+        if rb ~= nil then
+            assert(rb.velocity ~= nil)
+            Collisions.resolveCollision(self.circle, rb, delta)
+        end
+    end
+
     self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
-        -- Collisions: being done here so debug info can be drawn
-        for shape, delta in pairs(self.hc:collisions(self.circle.collider)) do
-            local rb = self:getRigibodyWithCollider(shape)
-            if rb ~= nil then
-                assert(rb.velocity ~= nil)
-                Collisions.resolveCollision(self.circle, rb, delta)
-            end
-        end
-
         self:drawRigidbodies()
-        
     gfx.popContext()
     self:markDirty()
 end
