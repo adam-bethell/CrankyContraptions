@@ -3,8 +3,7 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 
-import "HC/init"
-import "HC/vector-light"
+import "scripts/util/vector"
 import "scripts/physics/rigidbody"
 import "scripts/physics/pinnedRect"
 import "scripts/physics/collisions"
@@ -17,8 +16,6 @@ class("World").extends(gfx.sprite)
 
 
 function World:init()
-    self.hc = HC(150)
-
     self.floor = Rigidbody.newRectangle(200, 204, 400, 72, 0, {x=0, y=0}, 1, self.hc)
     self.floor:setVisible(false)
     self.floor:setStatic(true)

@@ -138,7 +138,7 @@ function Cam:generateCamImageTable()
         local i = 0
         local v = 1
         for i=0, 359 do
-            local x, y = vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
+            local x, y = Vector.addToPoint(centre, centre, i, centre * self:magAtDeg(i))
             verticies[v] = math.floor(x)
             verticies[v+1] = math.floor(y)
             v += 2

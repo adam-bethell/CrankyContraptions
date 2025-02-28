@@ -1,4 +1,4 @@
-import "HC/vector-light"
+import "scripts/util/vector"
 
 Collisions = {}
 function Collisions.resolveCollision(a, b, separatingVector)
@@ -10,12 +10,12 @@ function Collisions.resolveCollision(a, b, separatingVector)
     -- Calculate relative velocity
     -- rv = a.velocity - b.velocity
     local rv = {}
-    rv.x, rv.y = Vector_light.sub(a.velocity.x, a.velocity.y, b.velocity.x, b.velocity.y)
+    rv.x, rv.y = Vector.sub(a.velocity.x, a.velocity.y, b.velocity.x, b.velocity.y)
 
     -- Calculate relative velocity in terms of the normal direction
     local normal = {}
-    normal.x, normal.y = Vector_light.normalize(separatingVector.x, separatingVector.y)
-    local velAlongNormal = Vector_light.dot(rv.x, rv.y, normal.x, normal.y)
+    normal.x, normal.y = Vector.normalize(separatingVector.x, separatingVector.y)
+    local velAlongNormal = Vector.dot(rv.x, rv.y, normal.x, normal.y)
 
     -- Do not resolve if velocities are separating 
     if (velAlongNormal > 0) then
@@ -27,7 +27,7 @@ function Collisions.resolveCollision(a, b, separatingVector)
     a.position.y += separatingVector.y
 
     -- Apply Friction
-    a.velocity.x, a.velocity.y = Vector_light.mul(0.9, a.velocity.x, a.velocity.y)
+    a.velocity.x, a.velocity.y = Vector.mul(0.9, a.velocity.x, a.velocity.y)
 
     -- Calculate the effective mass
     -- This may be used inthe future for handing our impulse to 2 objects
@@ -38,7 +38,7 @@ function Collisions.resolveCollision(a, b, separatingVector)
 
     -- Calculate impulse vector
     local impulse_vector = {}
-    impulse_vector.x, impulse_vector.y = Vector_light.mul(impulse_scalar, normal.x, normal.y)
+    impulse_vector.x, impulse_vector.y = Vector.mul(impulse_scalar, normal.x, normal.y)
 
-    a.velocity.x, a.velocity.y = Vector_light.add(a.velocity.x, a.velocity.y, impulse_vector.x, impulse_vector.y)
+    a.velocity.x, a.velocity.y = Vector.add(a.velocity.x, a.velocity.y, impulse_vector.x, impulse_vector.y)
 end
