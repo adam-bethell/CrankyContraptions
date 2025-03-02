@@ -12,7 +12,9 @@ class("CamFollower").extends(gfx.sprite)
 function CamFollower:init(x, y)
     self.input = 0.0
     self.coeff = 1.0
+    self.targetOutput = 0.0
     self.output = 0.0
+    self.maxChange = 10
 
     self.x = x
     self.y = y
@@ -32,7 +34,7 @@ end
 
 function CamFollower:setInput(val)
     self.input = val
-    self:calculateOutput()
+    self:calculateTargetOutput()
 end
 
 function CamFollower:setScale(val)
@@ -44,13 +46,26 @@ end
 
 function CamFollower:setCoeff(val)
     self.coeff = val
-    self:calculateOutput()
+    self:calculateTargetOutput()
 end
 
-function CamFollower:calculateOutput()
-    local newOutput = self.input * self.coeff
-    if newOutput ~= self.output then
-        self.output = newOutput
+function CamFollower:calculateTargetOutput()
+    local newTargetOutput = self.input * self.coeff
+    if newTargetOutput ~= self.targetOutput then
+        self.targetOutput = newTargetOutput
+        self:draw()
+    end
+end
+
+function CamFollower:update()
+    if self.output ~= self.targetOutput then
+        if math.abs(self.output - self.targetOutput) <= self.maxChange then
+            self.output = self.targetOutput
+        elseif self.output < self.targetOutput then
+            self.output += self.maxChange
+        else
+            self.output -= self.maxChange
+        end
         self:draw()
     end
 end

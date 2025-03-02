@@ -20,7 +20,7 @@ end
 
 math.getIntersectingPoint = function(ax, ay, ac, bx, by, bc)
     --Calculate the length AB.
-    local ab = vector.distance(ax, ay, bx, by)
+    local ab = Vector.dist(ax, ay, bx, by)
     if (ac+bc<ab) then
         -- No intersecting point possible. Strecth instead to midpoint of ab
         local vx = bx-ax

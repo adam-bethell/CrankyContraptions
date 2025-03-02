@@ -23,17 +23,17 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
     self.optionsPoints:setContentInset(5, 5, 5, 5)
     self.optionsPoints:setNumberOfRowsInSection(1, #cam.points)
     function self.optionsPoints:drawCell(section, row, column, selected, x, y, width, height)
+        local text = "Point " .. row
         if selected then
-            gfx.setFont(gfx.getSystemFont("bold"))
+            gfx.drawText("* " .. text .. "*", x, y+2, width, height)
         else
-            gfx.setFont(gfx.getSystemFont("normal"))
+            gfx.drawText(text, x, y+2, width, height)
         end
-        gfx.drawText("Point " .. row, x, y+2, width, height)
     end
 
     function self.optionsPoints:drawSectionHeader(section, x, y, width, height)
-        gfx.setFont(gfx.getSystemFont("italic"))
-        gfx.drawTextInRect("Points", x, y+2, width, height)
+        --gfx.setFont(gfx.getSystemFont("italic"))
+        gfx.drawTextInRect("... Points ...", x, y+2, width, height)
     end
 
     self.optionsOther = pd.ui.gridview.new(width / 2, 20)
@@ -46,26 +46,28 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
     self.optionsOther:setNumberOfRowsInSection(2, #CamInfoPanel.presets)
     
     function self.optionsOther:drawCell(section, row, column, selected, x, y, width, height)
-        if selected then
-            gfx.setFont(gfx.getSystemFont("bold"))
-        else
-            gfx.setFont(gfx.getSystemFont("normal"))
-        end
+        local text = ""
         if section == 1 then
-            gfx.drawText(self.editOptions[row], x, y, width, height)
+            text = self.editOptions[row]
         elseif section == 2 then
-            gfx.drawText(CamInfoPanel.presets[row].name, x, y, width, height)
+            text = CamInfoPanel.presets[row].name
+        end
+
+        if selected then
+            gfx.drawText("* " .. text .. "*", x, y, width, height)
+        else
+            gfx.drawText(text, x, y, width, height)
         end
     end
 
     function self.optionsOther:drawSectionHeader(section, x, y, width, height)
-        gfx.setFont(gfx.getSystemFont("italic"))
-        gfx.setLineWidth(2)
+        --gfx.setFont(gfx.getSystemFont("italic"))
+        gfx.setLineWidth(1)
         if section == 1 then
-            gfx.drawText("Cam", x, y+2, width, height)
+            gfx.drawText("... Cam ...", x, y+2, width, height)
         elseif section == 2 then
             gfx.drawLine(x, y, x + width, y)
-            gfx.drawText("Presets", x, y+2, width, height)
+            gfx.drawText("... Presets ...", x, y+2, width, height)
         end
     end
 

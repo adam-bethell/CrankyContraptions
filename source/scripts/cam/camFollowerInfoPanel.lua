@@ -33,7 +33,6 @@ function CamFollowerInfoPanel:updateEditor(change)
     if change ~= 0 then
         self.value = math.clamp(self.value + change, 0, 1)
         self.formattedValue = math.floor(self.value*100)/100
-
         self:draw()
     end
 end
@@ -43,8 +42,7 @@ function CamFollowerInfoPanel:draw()
     gfx.pushContext(self.image)
         gfx.setLineWidth(2)
         gfx.drawRect(0, 0, 100, 50)
-        gfx.setFont(gfx.getFont(), "bold")
-        gfx.drawText("Scale: " .. self.formattedValue, 10, 10, 80, 30)
+        gfx.drawText("*Scale: " .. self.formattedValue .. "*", 10, 10, 80, 30)
     gfx.popContext()
     self:markDirty()
 end

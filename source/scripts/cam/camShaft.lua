@@ -17,28 +17,21 @@ local gfx <const> = pd.graphics
 
 class("CamShaft").extends(gfx.sprite)
 
-function CamShaft:init(n)
-    if n == nil then
-        n = 7
-    end
-    
+function CamShaft:init()
     local x = 32
     self.cams = {}
     self.followers = {}
-    for i=1, 7 do
-        if i > n then
-            break
-        end
+    for i=1, 4 do
         self.cams[i] = Cam(x, 216)
-        self.cams[i]:setPoints(table.shallowcopy(CamInfoPanel.presets[2].points))
-        self.cams[i]:setRotationsPerCrank(math.random())
+        self.cams[i]:setPoints(table.shallowcopy(CamInfoPanel.presets[i+1].points))
+        self.cams[i]:setRotationsPerCrank(math.random() * 0.6 + 0.4)
         self.followers[i] = CamFollower(x, 216-(47/2))
         self.followers[i]:setScale(math.random() * 0.4 + 0.1)
         self.followers[i]:draw()
         self.cams[i]:setFollower(self.followers[i])
         self.cams[i]:rotate(math.random(0, 359))
         self.cams[i]:draw()
-        x += 48
+        x += (48*2)
     end
 
     self.linkages = {}
@@ -114,8 +107,8 @@ function CamShaft:updateShaft()
     if pd.buttonJustPressed(pd.kButtonUp) then
         self.selectionRow = 2
         self.selector:setImage(self.selectorRowImages[self.selectionRow])
-        if self.selection == 8 then
-            self.selection = 7
+        if self.selection == 5 then
+            self.selection = 4
         end
     elseif pd.buttonJustPressed(pd.kButtonDown) then
         self.selectionRow = 1
@@ -128,17 +121,17 @@ function CamShaft:updateShaft()
         self.selection += 1
     end
     
-    local change = pd.getCrankChange()
+    local change = math.clamp(pd.getCrankChange(), -12, 12)
 
     if self.selectionRow == 1 then
-        self.selection = math.clamp(self.selection, 1, 8)
+        self.selection = math.clamp(self.selection, 1, 5)
 
-        if self.selection == 8 then
+        if self.selection == 5 then
             --crank
             self.flywheelRotation = math.wrap(self.flywheelRotation, 1, 48, change/48)
             self.flywheel:setImage(self.flywheelImage:getImage(math.floor(self.flywheelRotation + 0.5)))
             self.selector:moveTo(368, 216)
-            for i=1, 7 do
+            for i=1, 4 do
                 self.cams[i]:rotate(change)
                 self.cams[i]:draw()
             end
@@ -151,7 +144,7 @@ function CamShaft:updateShaft()
             self:drawLinkages()
         end
     
-        if pd.buttonJustPressed(pd.kButtonA) then
+        if pd.buttonJustPressed(pd.kButtonA) and self.selection < 5 then
             self.camEditor = Cam(110, 120, 20)
             self.camEditor:setWidthAndHeight(200)
             self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
@@ -160,11 +153,15 @@ function CamShaft:updateShaft()
 
             self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)
         end
-    else
-        self.selection = math.clamp(self.selection, 1, 7)
-        local x, y = self.cams[self.selection]:getPosition()
-        self.selector:moveTo(x, y-(47/2))
-
+    else -- Selection row is not 1
+        if self.selection == 5 then
+            self.selectionRow = 1
+        else
+            self.selection = math.clamp(self.selection, 1, 4)
+            local x, y = self.cams[self.selection]:getPosition()
+            self.selector:moveTo(x, y-(47/2))
+        end
+        
         if pd.buttonJustPressed(pd.kButtonA) then
             local value = self.followers[self.selection].scale
             self.ampEditor = CamFollowerInfoPanel(value)

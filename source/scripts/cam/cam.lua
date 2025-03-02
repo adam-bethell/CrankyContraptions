@@ -195,7 +195,7 @@ function Cam:draw()
         if self.selectionIndex > 0 and self.selectionIndex < #self.points+1 then
             local centre = math.floor(self.h / 2)
             local mag = self.points[self.selectionIndex]
-            local x, y = vector.addToPoint(centre, centre, self:pointToDeg(self.selectionIndex), centre * mag)
+            local x, y = Vector.addToPoint(centre, centre, self:pointToDeg(self.selectionIndex), centre * mag)
             gfx.drawCircleAtPoint(x,y, 10)
         end
     gfx.popContext()
@@ -237,12 +237,12 @@ function Cam:pointToDeg(index)
 end
 
 function Cam:setRotationsPerCrank(val)
-    self.rotationsPerCrank = math.clamp(val, 0.1, 2)
+    self.rotationsPerCrank = math.clamp(val, 0.1, 1)
     self.rotationCoeff = math.floor(self.rotationsPerCrank * 10) / 10
 end
 
 function Cam:adjustRotationsPerCrank(val)
-    self.rotationsPerCrank = math.clamp(self.rotationsPerCrank + val, 0.1, 5)
+    self.rotationsPerCrank = math.clamp(self.rotationsPerCrank + val, 0.1, 1)
     self.rotationCoeff = math.floor(self.rotationsPerCrank * 10) / 10
 end
 

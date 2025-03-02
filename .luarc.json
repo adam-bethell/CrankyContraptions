@@ -39,7 +39,10 @@
         "PointShape",
         "Rigidbody",
         "PinnedRect",
-        "CamFollowerLinkage"],
+        "CamFollowerLinkage",
+        "Collisions",
+        "Circle",
+        "TwoPinLine"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
