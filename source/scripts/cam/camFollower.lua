@@ -85,12 +85,11 @@ function CamFollower:draw()
         gfx.drawText(tostring(math.floor(self.input*10)), rect)
         -- Follower rod
         gfx.setPattern({ 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 })
-        local rodHeight = boxTop - (self.output)
-        gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, rodHeight)
-        gfx.fillCircleAtPoint(self.image.width / 2, rodHeight, 5)
-        assert(self.x >= 0 and self.x <= 400 and rodHeight >= 0 and rodHeight <= 240)
+        gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, self.socket.y)
+        gfx.fillCircleAtPoint(self.image.width / 2, self.socket.y, 5)
+        assert(self.x >= 0 and self.x <= 400 and self.socket.y >= 0 and self.socket.y <= 240)
         self.socket.x = self.x
-        self.socket.y = rodHeight
+        self.socket.y = boxTop - (self.output)
     gfx.popContext()
     self:markDirty()
 end

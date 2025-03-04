@@ -7,6 +7,17 @@ function Vector.addToPoint(x, y, deg, mag)
     return x+dx, y+dy
 end
 
+-- Get the angle from x1y1 to x2y2 with zero degrees pointing (1,0)
+function Vector.angle(x2, y2, x1, y1)
+    local deltaX = x2 - x1
+    local deltaY = y2 - y1
+    local rads = math.atan(deltaY, deltaX)
+    return math.deg(rads)
+end
+
+function Vector.midpoint(x1, y1, x2, y2)
+    return x1+((x2-x1)/2), y1+((y2-y1)/2)
+end
 --[[
     The below vector functions where taken from HC
     https://github.com/vrld/HC

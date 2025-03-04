@@ -42,13 +42,15 @@ function CamShaft:init()
     self.linkagesSprite:add()
     
     self.selectionRow = 1
-    self.selection = 8
-    self.selectorRowImages = {
-        gfx.image.new("images/dither_pattern_47_47"),
-        gfx.image.new("images/dither_pattern_47_47_masked")
-    }
-    self.selector = gfx.sprite.new(self.selectorRowImages[1])
-    self.selector:moveTo(x, 216)
+    self.selection = 5
+    self.sDegs = 0
+    self.selectImage = gfx.image.new(400, 240)
+    self.selectImageX = {0, 96, 192, 288, 336}
+    self.selectImageY = {182, 162}
+    self.selectImageW = 62
+    self.selectImageH = {66, 36}
+    self.selector = gfx.sprite.new(self.selectImage)
+    self.selector:moveTo(200, 120)
     self.selector:setZIndex(10)
     self.selector:add()
     self.selector:setVisible(false)
@@ -59,23 +61,41 @@ function CamShaft:init()
     self.ampEditor = nil
 
     self.hasFocus = false
+    self.swapFocus = false
 
-    self.flywheelRotation = 1
-    self.flywheelImage = gfx.imagetable.new("images/flywheel")
-    self.flywheel = gfx.sprite.new(self.flywheelImage:getImage(1))
-    self.flywheel:moveTo(368, 216)
-    self.flywheel:add()
+    self.flywheelDegs = 0
+    self.flywheelImage = gfx.image.new(47,68)
 
-    local bg = gfx.image.new(400, 72)
-    bg:clear(gfx.kColorBlack)
-    self:setImage(bg)
+    self.backgroundCogs = gfx.image.new(47,68)
+    self.backgroundCogsOffset = 0
+    self.backgroundCogsDegs = 0
+
+    self.bg = gfx.image.new(400, 72)
+    self.bg:clear(gfx.kColorBlack)
+    self:setImage(self.bg)
     self:moveTo(200, 204)
     self:setZIndex(-20)
     self:add()
 end
 
+function CamShaft:setSelectionX(x)
+    self.selectionRow = 2
+    if x < 81 then
+        self.selection = 1
+    elseif x < 176 then
+        self.selection = 2
+    elseif x < 273 then
+        self.selection = 3
+    else
+        self.selection = 4
+    end
+end
+
 function CamShaft:setFocus(focus)
     self.focus = focus
+    if focus then
+        self:updateShaft()
+    end
     self.selector:setVisible(focus)
 end
 
@@ -105,14 +125,18 @@ end
 
 function CamShaft:updateShaft()
     if pd.buttonJustPressed(pd.kButtonUp) then
-        self.selectionRow = 2
-        self.selector:setImage(self.selectorRowImages[self.selectionRow])
         if self.selection == 5 then
             self.selection = 4
         end
+
+        if self.selectionRow == 2 then
+            self.swapFocus = true
+        else
+            self.selectionRow = 2
+        end
+        
     elseif pd.buttonJustPressed(pd.kButtonDown) then
         self.selectionRow = 1
-        self.selector:setImage(self.selectorRowImages[self.selectionRow])
     end
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
@@ -128,17 +152,17 @@ function CamShaft:updateShaft()
 
         if self.selection == 5 then
             --crank
-            self.flywheelRotation = math.wrap(self.flywheelRotation, 1, 48, change/48)
-            self.flywheel:setImage(self.flywheelImage:getImage(math.floor(self.flywheelRotation + 0.5)))
-            self.selector:moveTo(368, 216)
             for i=1, 4 do
                 self.cams[i]:rotate(change)
                 self.cams[i]:draw()
             end
             self:drawLinkages()
+            self.backgroundCogsOffset += change
+            self.backgroundCogsDegs += (change*2)
+            self.flywheelDegs += change
+            self:drawBackgroudCogs()
         else
             -- cam
-            self.selector:moveTo(self.cams[self.selection]:getPosition())
             self.cams[self.selection]:rotate(change)
             self.cams[self.selection]:draw()
             self:drawLinkages()
@@ -159,7 +183,6 @@ function CamShaft:updateShaft()
         else
             self.selection = math.clamp(self.selection, 1, 4)
             local x, y = self.cams[self.selection]:getPosition()
-            self.selector:moveTo(x, y-(47/2))
         end
         
         if pd.buttonJustPressed(pd.kButtonA) then
@@ -167,12 +190,37 @@ function CamShaft:updateShaft()
             self.ampEditor = CamFollowerInfoPanel(value)
         end
     end
+
+    self.selectImage:clear(gfx.kColorClear)
+    gfx.pushContext(self.selectImage)
+        local rect = pd.geometry.rect.new(
+            self.selectImageX[self.selection],
+            self.selectImageY[self.selectionRow],
+            self.selectImageW,
+            self.selectImageH[self.selectionRow]
+        )
+        rect:inset(3, 3)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.setLineWidth(5)
+        gfx.drawEllipseInRect(rect)
+        gfx.setLineWidth(3)
+        gfx.setPattern({ 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 })
+        gfx.drawEllipseInRect(rect)
+        gfx.setColor(gfx.kColorBlack)
+        for i=0, 6 do
+            gfx.drawEllipseInRect(rect, self.sDegs, self.sDegs+60)
+            self.sDegs = math.wrap(self.sDegs, 0, 359, 120)
+        end
+        self.sDegs = math.wrap(self.sDegs, 0, 359, 2)
+    gfx.popContext()
+    self.selector:markDirty()
 end
 
 function CamShaft:updateAmpEditor()
     local change = pd.getCrankChange() / 359
     self.ampEditor:updateEditor(change)
     self.followers[self.selection]:setScale(self.ampEditor:getValue())
+    self:drawLinkages()
 
     if pd.buttonIsPressed(pd.kButtonB) then
         self.ampEditor:remove()
@@ -221,9 +269,10 @@ function CamShaft:getSockets()
     return s
 end
 
-function CamShaft:addLinkage(s1, l1, s2, l2)
-    local linkage = CamFollowerLinkage(s1, l1, s2, l2)
+function CamShaft:addLinkage(s1, s2, goal)
+    local linkage = CamFollowerLinkage(s1, s2, goal)
     self.linkages[#self.linkages+1] = linkage
+    self:drawLinkages()
     return linkage.s3
 end
 
@@ -237,4 +286,65 @@ function CamShaft:drawLinkages()
         end
     gfx.popContext()
     self.linkagesSprite:markDirty()
+end
+
+function CamShaft:drawBackgroudCogs()
+    self.backgroundCogs:clear(gfx.kColorWhite)
+    gfx.pushContext(self.backgroundCogs)
+        gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
+        gfx.setLineWidth(3)
+        gfx.drawLine(0,35,68,35)
+        gfx.drawLine(0,59,68,59)
+        gfx.setColor(gfx.kColorBlack)
+        self.backgroundCogsOffset = math.wrap(self.backgroundCogsOffset, 0, 68, 0)
+        gfx.drawLine(self.backgroundCogsOffset,35,self.backgroundCogsOffset-20,35)
+        gfx.drawLine(68-self.backgroundCogsOffset,59,68-self.backgroundCogsOffset-20,59)
+        
+        self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 0)
+        gfx.fillCircleAtPoint(0,47,3)
+        gfx.drawCircleAtPoint(0,47,10)
+        gfx.fillCircleAtPoint(24,47,3)
+        gfx.drawCircleAtPoint(24,47,10)
+        gfx.fillCircleAtPoint(48,47,3)
+        gfx.drawCircleAtPoint(48,47,10)
+        gfx.setLineWidth(5)
+        for i=1,6 do
+            gfx.drawArc(24,47,12,self.backgroundCogsDegs,self.backgroundCogsDegs+30)
+
+            local reverse = 359 - self.backgroundCogsDegs
+            gfx.drawArc(0,47,12,reverse,reverse+30)
+            gfx.drawArc(48,47,12,reverse,reverse+30)
+
+            self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 60)
+        end
+    gfx.popContext()
+
+    self.flywheelImage:clear(gfx.kColorWhite)
+    gfx.pushContext(self.flywheelImage)
+        --gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
+        --gfx.fillCircleAtPoint(23,44,18)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.setLineWidth(2)
+        gfx.drawCircleAtPoint(23,44,24)
+        gfx.drawCircleAtPoint(23,44,19)
+        gfx.setLineWidth(1)
+        gfx.drawCircleAtPoint(23,44,22)
+        gfx.drawTextInRect("crank!", 0, -1, 44, 20, 0, nil, kTextAlignment.center)
+
+        gfx.setLineWidth(38)
+        for i=1,9 do
+            gfx.drawArc(23,44,1,self.flywheelDegs,self.flywheelDegs+20)
+            self.flywheelDegs = math.wrap(self.flywheelDegs, 0, 359, 40)
+        end
+    gfx.popContext()
+
+    self.bg:clear(gfx.kColorBlack)
+    gfx.pushContext(self.bg)
+        self.backgroundCogs:draw(56, 3)
+        self.backgroundCogs:draw(152, 3)
+        self.backgroundCogs:draw(248, 3)
+
+        self.flywheelImage:draw(344,3)
+    gfx.popContext()
+    self:markDirty()
 end

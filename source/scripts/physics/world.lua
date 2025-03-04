@@ -55,8 +55,8 @@ function World:addCircle(socket, radius)
     self.rbs[#self.rbs+1] = c
 end
 
-function World:addPinnedLine(socket1, socket2)
-    local l = TwoPinLine(0,0,0,0,15)
+function World:addPinnedLine(socket1, socket2, lineWidth)
+    local l = TwoPinLine(0,0,0,0,lineWidth)
     l.socket1 = socket1
     l.socket2 = socket2
     self.rbs[#self.rbs+1] = l

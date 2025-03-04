@@ -5,13 +5,18 @@ end
 math.wrap = function(value, lower, upper, change)
     value += change
     
+    local c = 0
     while value ~= math.clamp(value, lower, upper) do
+        c += 1
         if value > upper then
-            value = lower + (value - upper)
+            value = lower + math.max(math.abs(upper+1 - value), 0)
         end
 
         if value < lower  then
-            value = upper - (lower - value)
+            value = upper - math.max(math.abs(lower-1 - value), 0)
+        end
+        if c > 10 then
+            assert(false, "why!?")
         end
     end
 
@@ -28,7 +33,7 @@ math.getIntersectingPoint = function(ax, ay, ac, bx, by, bc)
         local c = ac/(ac+bc)
         vx *= c
         vy *= c
-        return ax+vx, ay+vy
+        return ax+vx, ay+vy, ax+vx, ay+vy
     end
     --Picture a line that goes straight from A to B.
     --The length D tells you how far along this line C would be if it were directly on this line. 

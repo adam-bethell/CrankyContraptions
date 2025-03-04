@@ -42,7 +42,8 @@
         "CamFollowerLinkage",
         "Collisions",
         "Circle",
-        "TwoPinLine"],
+        "TwoPinLine",
+        "WorldUI"],
     "diagnostics.severity": {
         "duplicate-set-field": "Hint"
     },
