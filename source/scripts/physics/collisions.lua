@@ -53,7 +53,9 @@ Collisions = {}
 function Collisions.checkCollisions(rb, cols)
     -- Check colliders
     for i, c in ipairs(cols) do
-        if c:isa(Circle) then
+        if c == nil then
+            -- DO NOTHING
+        elseif c:isa(Circle) then
             local d = Vector.dist(rb.x, rb.y, c.x, c.y)
             d = d - rb.radius - c.radius
             if d <= 0 then -- Collision

@@ -20,7 +20,8 @@ function CamFollower:init(x, y)
     self.y = y
     self.socket = {
         x = 0,
-        y = 0
+        y = 0,
+        deleted = false
     }
     
     self.image = gfx.image.new(47, 240-(240-y))
@@ -76,6 +77,8 @@ function CamFollower:draw()
         gfx.setLineWidth(2)
         -- Box
         local boxTop = self.image.height - (47/2)
+        self.socket.x = self.x
+        self.socket.y = boxTop - (self.output)
         local rect = pd.geometry.rect.new(0, boxTop, 47, (47/2))
         gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(rect)
@@ -88,8 +91,6 @@ function CamFollower:draw()
         gfx.drawLine(self.image.width / 2, boxTop, self.image.width / 2, self.socket.y)
         gfx.fillCircleAtPoint(self.image.width / 2, self.socket.y, 5)
         assert(self.x >= 0 and self.x <= 400 and self.socket.y >= 0 and self.socket.y <= 240)
-        self.socket.x = self.x
-        self.socket.y = boxTop - (self.output)
     gfx.popContext()
     self:markDirty()
 end

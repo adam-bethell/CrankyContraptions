@@ -45,6 +45,7 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
     self.optionsOther:setNumberOfRowsInSection(1, #self.optionsOther.editOptions)
     self.optionsOther:setNumberOfRowsInSection(2, #CamInfoPanel.presets)
     
+    
     function self.optionsOther:drawCell(section, row, column, selected, x, y, width, height)
         local text = ""
         if section == 1 then
@@ -71,7 +72,8 @@ function CamInfoPanel:init(cam, x, y, width, height, zindex)
         end
     end
 
-    self.optionsOther:setSelection(101, 1, 1)
+    self.optionsOther:setSelection(3, 1, 1)
+    self.prevOs = 1
 
     self.img = gfx.image.new(width, height)
     self:setImage(self.img)
@@ -117,6 +119,7 @@ function CamInfoPanel:update()
         elseif pd.buttonJustPressed(pd.kButtonDown) then
             self.optionsOther:selectNextRow(true)
         end
+        self.prevOs, oR, oC = self.optionsOther:getSelection()
     end
 
     pS, pR, pC = self.optionsPoints:getSelection()
@@ -124,10 +127,10 @@ function CamInfoPanel:update()
 
     if pd.buttonJustPressed(pd.kButtonLeft) then
         self.optionsPoints:setSelection(1, pR, pC)
-        self.optionsOther:setSelection(oS+100, oR, oC)
+        self.optionsOther:setSelection(3, oR, oC)
     elseif pd.buttonJustPressed(pd.kButtonRight) then
         self.optionsPoints:setSelection(5, pR, pC)
-        self.optionsOther:setSelection(oS-100, oR, oC)
+        self.optionsOther:setSelection(self.prevOs, oR, oC)
     end
 
     if oS == 2 then

@@ -47,6 +47,19 @@ function WorldUI:init(camShaft, world)
     self:moveTo(200,120)
     self:setZIndex(50)
     self:add()
+
+
+    pd.debugDraw = function ()
+        for i, v in ipairs(self.availableSockets) do
+            gfx.drawCircleAtPoint(v.x, v.y, 10)
+        end
+    end
+
+    pd.keyPressed = function (k)
+        if k == "p" then
+            printTable(self.availableSockets[self.selectedSocketIndex])
+        end
+    end
 end
 
 function WorldUI:setSelection(newIndex)
@@ -98,6 +111,8 @@ function WorldUI:update()
             self:drawSelector()
         gfx.popContext()
         self:markDirty()
+
+        self:updateHelpText()
     end
 end
 
@@ -157,7 +172,31 @@ function WorldUI:updateAdding()
 end
 
 function WorldUI:updateRemoveConfirm()
+    local rect = pd.geometry.rect.new(130, 170, 140, 70)
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(rect)
+    rect:inset(2, 2)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(rect)
+    rect:inset(2, 1)
+    gfx.drawTextInRect(
+        "Are you sure you want to remove all objects attached to this follower?",
+        rect,
+        nil,
+        nil,
+        kTextAlignment.center
+    )
 
+    if pd.buttonJustPressed(pd.kButtonA) then
+        local s = self.availableSockets[self.fromSelectedSocketIndex]
+        self.camShaft:removeAttached(s)
+        self.world:removeAttached(s)
+        self.world:removeUnattached()
+        self:sortAvailableSockets()
+        self.state = "selecting"
+    elseif pd.buttonJustPressed(pd.kButtonB) then
+        self.state = "adding"
+    end
 end
 
 function WorldUI:updatePlacing()
@@ -317,29 +356,62 @@ end
 function WorldUI:sortAvailableSockets()
     local currentlySelectedSocket = self.availableSockets[self.selectedSocketIndex]
 
+    for i, v in ipairs(self.availableSockets) do
+        if v.deleted then
+            self.availableSockets[i] = nil
+        end
+    end
+
     -- Sort in x asc, y asc order
-    local sortedSockets = table.create(#self.availableSockets, 0)
-    for i=1, #self.availableSockets do
-        local smallestIndex = #self.availableSockets
+    local sortedSockets = {}
+    local iMax = 0
+    for k, v in pairs(self.availableSockets) do
+        iMax += 1
+    end
+    for i=1, iMax do
+        local smallestIndex = 1
         local smallestX = 500
         local smallestY = 300
-        for j=1, #self.availableSockets do
-            local socket = self.availableSockets[j]
-            if socket.x < smallestX then
-                smallestX = socket.x
-                smallestY = socket.y
-                smallestIndex = j
-            elseif socket.x == smallestX and socket.y < smallestY then
-                smallestX = socket.x
-                smallestY = socket.y
-                smallestIndex = j
+        for j, w in pairs(self.availableSockets) do
+            if w == nil then
+                -- do nothing
+            else
+                if w.x < smallestX then
+                    smallestX = w.x
+                    smallestY = w.y
+                    smallestIndex = j
+                elseif w.x == smallestX and w.y < smallestY then
+                    smallestX = w.x
+                    smallestY = w.y
+                    smallestIndex = j
+                end
             end
         end
-        sortedSockets[i] = table.remove(self.availableSockets, smallestIndex)
+        local socket = self.availableSockets[smallestIndex]
+        self.availableSockets[smallestIndex] = nil
+        if socket ~= nil then
+            sortedSockets[#sortedSockets+1] = socket
+        end
     end
     self.availableSockets = sortedSockets
 
     -- update selection index to match new position
     self.selectedSocketIndex = table.indexOfElement(sortedSockets, currentlySelectedSocket)
     assert(self.selectedSocketIndex, "failed to update index")
+end
+
+function WorldUI:updateHelpText()
+    if self.state == "selecting" then
+        HELPER_UI:setText("navigate", "", "edit", "")
+    elseif self.state == "adding" then
+        HELPER_UI:setText("navigate", "exit", "choose", "")
+    elseif self.state == "removeConfirm" then
+        HELPER_UI:setText("", "cancel", "DELETE", "")
+    elseif self.state == "placing" then
+        HELPER_UI:setText("navigate", "back", "place", "")
+    elseif self.state == "placing2" then
+        HELPER_UI:setText("size", "back", "place", "")
+    elseif self.state == "placingMove" then
+        HELPER_UI:setText("move", "back", "place", "")
+    end
 end

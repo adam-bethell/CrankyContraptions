@@ -10,12 +10,15 @@ local gfx <const> = pd.graphics
 
 class("Circle").extends()
 
-function Circle:init(x, y, radius)
+function Circle:init(x, y, radius, vx, vy)
+    
     self.x = x
     self.y = y
     self.radius = radius
-    self.vX = 0
-    self.vY = 0
+    self.vX = vx or 0
+    self.vY = vy or 0
+    self.initVX = vx or 0
+    self.initVY = vy or 0
     self.restitution = 1
     self.socket = nil
 end
@@ -45,4 +48,9 @@ end
 function Circle:moveTo(x, y)
     self.x = x
     self.y = y
+end
+
+function Circle:resetVelocity()
+    self.vX = self.initVX
+    self.vY = self.initVY 
 end

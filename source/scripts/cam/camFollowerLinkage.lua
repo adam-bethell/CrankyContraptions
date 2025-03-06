@@ -16,7 +16,7 @@ function CamFollowerLinkage:init(s1, s2, goal)
     self.l2 = Vector.dist(s2.x, s2.y, self.g.x, self.g.y)
 
     self.image = gfx.image.new(400, 240)
-    self.s3 = {}
+    self.s3 = {deleted = false}
     self.s3.x, self.s3.y = self:getIntersectingPoint()
 end
 

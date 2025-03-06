@@ -12,12 +12,15 @@ import "scripts/cam/camInfoPanel"
 import "scripts/cam/camFollower"
 import "scripts/cam/camFollowerInfoPanel"
 
+import "scripts/physics/world"
+
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class("CamShaft").extends(gfx.sprite)
 
-function CamShaft:init()
+function CamShaft:init(world)
+    self.world = world
     local x = 32
     self.cams = {}
     self.followers = {}
@@ -119,6 +122,7 @@ function CamShaft:update()
             self.inUpdateShaft = true
             self:updateShaft()
         end
+        self:updateHelpText()
     end
 end
 
@@ -168,14 +172,19 @@ function CamShaft:updateShaft()
             self:drawLinkages()
         end
     
-        if pd.buttonJustPressed(pd.kButtonA) and self.selection < 5 then
-            self.camEditor = Cam(110, 120, 20)
-            self.camEditor:setWidthAndHeight(200)
-            self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
-            self.camEditor:setRotationsPerCrank(self.cams[self.selection].rotationCoeff)
-            self.camEditor:draw()
+        if pd.buttonJustPressed(pd.kButtonA) then
+            if self.selection < 5 then
+                self.camEditor = Cam(110, 120, 20)
+                self.camEditor:setWidthAndHeight(200)
+                self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
+                self.camEditor:setRotationsPerCrank(self.cams[self.selection].rotationCoeff)
+                self.camEditor:draw()
 
-            self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)
+                self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)
+            else
+                -- Reset ball
+                self.world:resetStage()
+            end
         end
     else -- Selection row is not 1
         if self.selection == 5 then
@@ -347,4 +356,43 @@ function CamShaft:drawBackgroudCogs()
         self.flywheelImage:draw(344,3)
     gfx.popContext()
     self:markDirty()
+end
+
+function CamShaft:updateHelpText()
+    if self.selectionRow == 1 then
+        if self.selection == 5 then
+            HELPER_UI:setText("navigate", "", "reset ball", "turn camshaft")
+        else
+            HELPER_UI:setText("navigate", "", "edit", "turn cam")
+        end
+    else
+        HELPER_UI:setText("navigate", "", "edit", "")
+    end
+end
+
+function CamShaft:removeAttached(socket)
+    local s3s = {}
+    local linkagesRemoved = false
+    for i, v in pairs(self.linkages) do
+        if v.s1 == socket or v.s2 == socket then
+            v.s3.deleted = true
+            v:remove()
+            self.linkages[i] = nil
+            linkagesRemoved = true
+        end
+    end
+
+    while linkagesRemoved do
+        linkagesRemoved = false
+        for i, v in pairs(self.linkages) do
+            if v.s1.deleted or v.s2.deleted then
+                v.s3.deleted = true
+                v:remove()
+                self.linkages[i] = nil
+                linkagesRemoved = true
+            end
+        end
+    end
+
+    self:drawLinkages()
 end

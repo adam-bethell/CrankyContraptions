@@ -7,6 +7,7 @@ import "scripts/util/math"
 import "scripts/util/vector"
 
 import "scripts/level"
+import "scripts/helperUI"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -22,7 +23,10 @@ local fontPaths = {
 }
 gfx.setFontFamily(fontPaths)
 
+HELPER_UI = HelperUI()
+
 local level = Level()
+
 
 function pd.update()
     gfx.sprite.update()

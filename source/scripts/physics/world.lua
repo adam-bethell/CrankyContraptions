@@ -15,8 +15,7 @@ class("World").extends(gfx.sprite)
 
 function World:init()
 
-    self.ball = Circle(50,50,10)
-    self.ball.vX = 5
+    self.ball = Circle(50,50,10, 5, 0)
     self.ball.restitution = 0.7
 
     self.rbs = {}
@@ -31,16 +30,16 @@ end
 function World:update()
     self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
-    -- Logic
-    self.ball:update()
-    for i, v in ipairs(self.rbs) do
-        v:update()
-    end
-    Collisions.checkCollisions(self.ball, self.rbs)
+        -- Logic
+        self.ball:update()
+        for i, v in ipairs(self.rbs) do
+            local deleted = v:update()
+            if deleted then
+                self.rbs[i] = nil
+            end
+        end
+        Collisions.checkCollisions(self.ball, self.rbs)
 
-    -- Graphics
-    -- self.image:clear(gfx.kColorClear)
-    -- gfx.pushContext(self.image)
         self.ball:draw()
         for i, v in ipairs(self.rbs) do
             v:draw()
@@ -61,4 +60,39 @@ function World:addPinnedLine(socket1, socket2, lineWidth)
     l.socket2 = socket2
     self.rbs[#self.rbs+1] = l
 
+end
+
+function World:removeAttached(socket)
+    for i, v in pairs(self.rbs) do
+        if v:isa(TwoPinLine) then
+            if v.socket1 == socket or v.socket2 == socket then
+
+                self.rbs[i] = nil
+            end
+        elseif v:isa(Circle) then
+            if v.socket == socket then
+                self.rbs[i] = nil
+            end
+        end
+    end
+end
+
+function World:removeUnattached()
+    for i, v in pairs(self.rbs) do
+        if v:isa(TwoPinLine) then
+            if v.socket1.deleted or v.socket2.deleted then
+
+                self.rbs[i] = nil
+            end
+        elseif v:isa(Circle) then
+            if v.socket.deleted then
+                self.rbs[i] = nil
+            end
+        end
+    end
+end
+
+function World:resetStage()
+    self.ball:moveTo(30,30)
+    self.ball:resetVelocity()
 end
