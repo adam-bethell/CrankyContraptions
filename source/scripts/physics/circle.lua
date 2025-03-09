@@ -14,6 +14,8 @@ function Circle:init(x, y, radius, vx, vy)
     
     self.x = x
     self.y = y
+    self.initX = x
+    self.initY = y
     self.radius = radius
     self.vX = vx or 0
     self.vY = vy or 0
@@ -21,6 +23,8 @@ function Circle:init(x, y, radius, vx, vy)
     self.initVY = vy or 0
     self.restitution = 1
     self.socket = nil
+
+    self.static = false
 end
 
 function Circle:draw()
@@ -48,6 +52,11 @@ end
 function Circle:moveTo(x, y)
     self.x = x
     self.y = y
+end
+
+function Circle:resetPosition()
+    self.x = self.initX
+    self.y = self.initY
 end
 
 function Circle:resetVelocity()

@@ -40,9 +40,12 @@ function HelperUI:setText(dPadText, bButtonText, aButtonText, crankText)
 end
 
 function HelperUI:update()
-    self.image:clear(gfx.kColorWhite)
+    self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
-        gfx.drawTextInRect(self.helpInfo, 0, 0, 400, 20, nil, nil, kTextAlignment.center)
+        local w, h = gfx.drawTextInRect(self.helpInfo, 0, 0, 400, 20, nil, nil, kTextAlignment.center)
+        gfx.setColor(gfx.kColorClear)
+        gfx.fillRect(0, 0, 200-w/2, h)
+        gfx.fillRect(200+w/2, 0, 200-w/2, h)
     gfx.popContext()
     self:markDirty()
 end

@@ -42,10 +42,13 @@ local function closestPointOnLine(px, py, x1, y1, x2, y2)
     -- Projection scale factor
     local t = (vec_x * dir_x + vec_y * dir_y) / (dir_x * dir_x + dir_y * dir_y)
 
-    -- Calculate the closest point
+    -- Calculate the closest point on the line if infinite
     local closest_x = x1 + t * dir_x
     local closest_y = y1 + t * dir_y
 
+    -- Clamp to the finite line
+    closest_x = math.clamp(closest_x, math.min(x1, x2), math.max(x1, x2))
+    closest_y = math.clamp(closest_y, math.min(y1, y2), math.max(y1, y2))
     return closest_x, closest_y
 end
 
@@ -72,8 +75,10 @@ function Collisions.checkCollisions(rb, cols)
             d = d - rb.radius - (c.lineWidth / 2)
             if d <= 0 then
                 -- Separating vector
+                gfx.drawLine(c.x1, c.y1, c.x2, c.y2)
                 local px, py = closestPointOnLine(rb.x, rb.y, c.x1, c.y1, c.x2, c.y2)
                 local svX, svY = Vector.sub(rb.x, rb.y, px, py)
+                gfx.drawLine(px,py,rb.x,rb.y)
                 svX, svY = Vector.normalize(svX, svY)
                 svX, svY = Vector.mul(math.abs(d), svX, svY)
                 -- print("Collision Data")

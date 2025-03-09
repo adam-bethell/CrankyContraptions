@@ -37,6 +37,9 @@ function CamShaft:init(world)
         x += (48*2)
     end
 
+    self.followers[1]:setFollowerRotation(90)
+    self.followers[4]:setFollowerRotation(-90)
+
     self.linkages = {}
     self.linkagesImage = gfx.image.new(400, 240)
     self.linkagesSprite = gfx.sprite.new(self.linkagesImage)
@@ -178,6 +181,7 @@ function CamShaft:updateShaft()
                 self.camEditor:setWidthAndHeight(200)
                 self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
                 self.camEditor:setRotationsPerCrank(self.cams[self.selection].rotationCoeff)
+                self.camEditor:setHideFollower(true)
                 self.camEditor:draw()
 
                 self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)
@@ -186,12 +190,20 @@ function CamShaft:updateShaft()
                 self.world:resetStage()
             end
         end
-    else -- Selection row is not 1
+    else -- Selection row is 2 - Amp sections
         if self.selection == 5 then
             self.selectionRow = 1
         else
             self.selection = math.clamp(self.selection, 1, 4)
-            local x, y = self.cams[self.selection]:getPosition()
+            if change ~= 0 then
+                if self.selection == 1 or self.selection == 4 then
+                    self.followers[self.selection]:adjustFollowerOffset(0, change *0.5)
+                else
+                    self.followers[self.selection]:adjustFollowerOffset(change *0.5, 0)
+                end
+                self.followers[self.selection]:draw()
+                self:drawLinkages()
+            end
         end
         
         if pd.buttonJustPressed(pd.kButtonA) then
@@ -244,7 +256,7 @@ function CamShaft:updateCamEditor()
     if s == 1 then
         self.editorSelection = r
         self.camEditor:adjustPoint(self.editorSelection, change)
-    else
+    elseif s == 2 then
         self.editorSelection = 0
         if r == 1 then
             self.camEditor:scalePoints(1+change)
@@ -253,6 +265,8 @@ function CamShaft:updateCamEditor()
         elseif r == 3 then
             self.camEditor:adjustRotationsPerCrank(change)
         end
+    elseif s == 3 then
+        self.editorSelection = 0
     end
     self.camEditor:setUISelection(self.editorSelection)
     self.camEditor:draw()
@@ -298,60 +312,77 @@ function CamShaft:drawLinkages()
 end
 
 function CamShaft:drawBackgroudCogs()
-    self.backgroundCogs:clear(gfx.kColorWhite)
-    gfx.pushContext(self.backgroundCogs)
-        gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
-        gfx.setLineWidth(3)
-        gfx.drawLine(0,35,68,35)
-        gfx.drawLine(0,59,68,59)
-        gfx.setColor(gfx.kColorBlack)
-        self.backgroundCogsOffset = math.wrap(self.backgroundCogsOffset, 0, 68, 0)
-        gfx.drawLine(self.backgroundCogsOffset,35,self.backgroundCogsOffset-20,35)
-        gfx.drawLine(68-self.backgroundCogsOffset,59,68-self.backgroundCogsOffset-20,59)
+    -- self.backgroundCogs:clear(gfx.kColorWhite)
+    -- gfx.pushContext(self.backgroundCogs)
+    --     gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
+    --     gfx.setLineWidth(3)
+    --     gfx.drawLine(0,35,68,35)
+    --     gfx.drawLine(0,59,68,59)
+    --     gfx.setColor(gfx.kColorBlack)
+    --     self.backgroundCogsOffset = math.wrap(self.backgroundCogsOffset, 0, 68, 0)
+    --     gfx.drawLine(self.backgroundCogsOffset,35,self.backgroundCogsOffset-20,35)
+    --     gfx.drawLine(68-self.backgroundCogsOffset,59,68-self.backgroundCogsOffset-20,59)
         
-        self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 0)
-        gfx.fillCircleAtPoint(0,47,3)
-        gfx.drawCircleAtPoint(0,47,10)
-        gfx.fillCircleAtPoint(24,47,3)
-        gfx.drawCircleAtPoint(24,47,10)
-        gfx.fillCircleAtPoint(48,47,3)
-        gfx.drawCircleAtPoint(48,47,10)
-        gfx.setLineWidth(5)
-        for i=1,6 do
-            gfx.drawArc(24,47,12,self.backgroundCogsDegs,self.backgroundCogsDegs+30)
+    --     self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 0)
+    --     gfx.fillCircleAtPoint(0,47,3)
+    --     gfx.drawCircleAtPoint(0,47,10)
+    --     gfx.fillCircleAtPoint(24,47,3)
+    --     gfx.drawCircleAtPoint(24,47,10)
+    --     gfx.fillCircleAtPoint(48,47,3)
+    --     gfx.drawCircleAtPoint(48,47,10)
+    --     gfx.setLineWidth(5)
+    --     for i=1,6 do
+    --         gfx.drawArc(24,47,12,self.backgroundCogsDegs,self.backgroundCogsDegs+30)
 
-            local reverse = 359 - self.backgroundCogsDegs
-            gfx.drawArc(0,47,12,reverse,reverse+30)
-            gfx.drawArc(48,47,12,reverse,reverse+30)
+    --         local reverse = 359 - self.backgroundCogsDegs
+    --         gfx.drawArc(0,47,12,reverse,reverse+30)
+    --         gfx.drawArc(48,47,12,reverse,reverse+30)
 
-            self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 60)
-        end
-    gfx.popContext()
+    --         self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 60)
+    --     end
+    -- gfx.popContext()
 
     self.flywheelImage:clear(gfx.kColorWhite)
     gfx.pushContext(self.flywheelImage)
         --gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
         --gfx.fillCircleAtPoint(23,44,18)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.setLineWidth(2)
-        gfx.drawCircleAtPoint(23,44,24)
-        gfx.drawCircleAtPoint(23,44,19)
-        gfx.setLineWidth(1)
-        gfx.drawCircleAtPoint(23,44,22)
-        gfx.drawTextInRect("crank!", 0, -1, 44, 20, 0, nil, kTextAlignment.center)
+        -- gfx.setColor(gfx.kColorBlack)
+        -- gfx.setLineWidth(2)
+        -- gfx.drawCircleAtPoint(23,44,24)
+        -- gfx.drawCircleAtPoint(23,44,19)
+        -- gfx.setLineWidth(1)
+        -- gfx.drawCircleAtPoint(23,44,22)
+        -- gfx.drawTextInRect("crank!", 0, -1, 44, 20, 0, nil, kTextAlignment.center)
 
-        gfx.setLineWidth(38)
-        for i=1,9 do
-            gfx.drawArc(23,44,1,self.flywheelDegs,self.flywheelDegs+20)
-            self.flywheelDegs = math.wrap(self.flywheelDegs, 0, 359, 40)
-        end
+        -- gfx.setLineWidth(38)
+        -- for i=1,9 do
+        --     gfx.drawArc(23,44,1,self.flywheelDegs,self.flywheelDegs+20)
+        --     self.flywheelDegs = math.wrap(self.flywheelDegs, 0, 359, 40)
+        -- end
+
+        -- draw crank
+        local d = pd.getCrankPosition()
+        local cx, cy = Vector.addToPoint(23, 44, d, 10)
+        gfx.setLineWidth(6)
+        gfx.setLineCapStyle(gfx.kLineCapStyleRound)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawLine(23,44,cx,cy)
+        gfx.setLineWidth(3)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.drawLine(23,44,cx,cy)
+        gfx.setLineWidth(2)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRoundRect(cx-2, cy-2, 20, 8, 30)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawRoundRect(cx-2, cy-2, 20, 8, 30)
+
     gfx.popContext()
 
     self.bg:clear(gfx.kColorBlack)
     gfx.pushContext(self.bg)
-        self.backgroundCogs:draw(56, 3)
-        self.backgroundCogs:draw(152, 3)
-        self.backgroundCogs:draw(248, 3)
+        -- self.backgroundCogs:draw(56, 3)
+        -- self.backgroundCogs:draw(152, 3)
+        -- self.backgroundCogs:draw(248, 3)
 
         self.flywheelImage:draw(344,3)
     gfx.popContext()
@@ -359,14 +390,27 @@ function CamShaft:drawBackgroudCogs()
 end
 
 function CamShaft:updateHelpText()
-    if self.selectionRow == 1 then
-        if self.selection == 5 then
-            HELPER_UI:setText("navigate", "", "reset ball", "turn camshaft")
-        else
-            HELPER_UI:setText("navigate", "", "edit", "turn cam")
+    if self.camEditor ~= nil then
+        local s, r = self.camInfoPanel:getSelection()
+        local aButtonText = ""
+        local crankText = "adjust value"
+        if s == 3 then
+            aButtonText = "apply"
+            crankText = ""
         end
+        HELPER_UI:setText("navigate", "exit", aButtonText, crankText)
+    elseif self.ampEditor ~= nil then
+        HELPER_UI:setText("", "exit", "", "adjust value")
     else
-        HELPER_UI:setText("navigate", "", "edit", "")
+        if self.selectionRow == 1 then
+            if self.selection == 5 then
+                HELPER_UI:setText("navigate", "", "reset ball", "turn camshaft")
+            else
+                HELPER_UI:setText("navigate", "", "edit", "turn cam")
+            end
+        else
+            HELPER_UI:setText("navigate", "", "edit", "move")
+        end
     end
 end
 

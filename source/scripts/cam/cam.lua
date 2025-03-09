@@ -23,6 +23,7 @@ function Cam:init(x, y, zIndex)
     self.camShapeChanged = true
 
     self.follower = nil
+    self.hideFollower = false
 
     self.lineWidth = 1
     self.camImage = nil
@@ -210,10 +211,12 @@ function Cam:draw()
     
     -- Shaft
     self.shaftImage:clear(gfx.kColorClear)
-    gfx.pushContext(self.shaftImage)
-        gfx.setLineWidth(self.lineWidth * 2)
-        gfx.drawLine(self.w/2, self.h - self:getEdgePosition(0), self.w/2, self.h - self:getEdgePosition(0) - (self.h / 2))
-    gfx.popContext()
+    if not self.hideFollower then
+        gfx.pushContext(self.shaftImage)
+            gfx.setLineWidth(self.lineWidth * 2)
+            gfx.drawLine(self.w/2, self.h - self:getEdgePosition(0), self.w/2, self.h - self:getEdgePosition(0) - (self.h / 2))
+        gfx.popContext()
+    end
     self.shaftSprite:setImage(self.shaftImage)
     self.shaftSprite:markDirty()
 
@@ -284,4 +287,8 @@ end
 
 function Cam:setFollower(follower)
     self.follower = follower
+end
+
+function Cam:setHideFollower(v)
+    self.hideFollower = v
 end

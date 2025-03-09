@@ -146,7 +146,7 @@ function CamInfoPanel:getSelection()
     if pS == 1 then
         return 1, pR
     end
-    return 2, oR
+    return oS + 1, oR
 end
 
 

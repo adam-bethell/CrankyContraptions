@@ -31,6 +31,6 @@ local level = Level()
 function pd.update()
     gfx.sprite.update()
     pd.timer.updateTimers()
-    --pd.drawFPS(0, 0)
+    pd.drawFPS(0, 0)
 end
 

@@ -49,17 +49,17 @@ function WorldUI:init(camShaft, world)
     self:add()
 
 
-    pd.debugDraw = function ()
-        for i, v in ipairs(self.availableSockets) do
-            gfx.drawCircleAtPoint(v.x, v.y, 10)
-        end
-    end
+    -- pd.debugDraw = function ()
+    --     for i, v in ipairs(self.availableSockets) do
+    --         gfx.drawCircleAtPoint(v.x, v.y, 10)
+    --     end
+    -- end
 
-    pd.keyPressed = function (k)
-        if k == "p" then
-            printTable(self.availableSockets[self.selectedSocketIndex])
-        end
-    end
+    -- pd.keyPressed = function (k)
+    --     if k == "p" then
+    --         printTable(self.availableSockets[self.selectedSocketIndex])
+    --     end
+    -- end
 end
 
 function WorldUI:setSelection(newIndex)

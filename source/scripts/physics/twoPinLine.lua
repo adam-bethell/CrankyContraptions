@@ -3,6 +3,8 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 
+import "scripts/physics/circle"
+
 import "scripts/util/vector"
 
 local pd <const> = playdate
@@ -23,6 +25,8 @@ function TwoPinLine:init(x1, y1, x2, y2, w)
 
     self.vX = 0
     self.vY = 0
+
+    self.static = false
 end
 
 function TwoPinLine:update()
@@ -33,7 +37,11 @@ function TwoPinLine:update()
 end
 
 function TwoPinLine:draw()
+    if self.static then
+        gfx.setPattern({0x00, 0x44, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00})
+    end
     gfx.setLineCapStyle(gfx.kLineCapStyleRound)
     gfx.setLineWidth(self.lineWidth)
     gfx.drawLine(self.x1, self.y1, self.x2, self.y2)
+    gfx.setColor(gfx.kColorBlack)
 end
