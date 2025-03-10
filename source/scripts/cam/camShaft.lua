@@ -69,17 +69,17 @@ function CamShaft:init(world)
     self.hasFocus = false
     self.swapFocus = false
 
-    self.flywheelDegs = 0
-    self.flywheelImage = gfx.image.new(47,68)
+    self.backgroundCogs = gfx.imagetable.new("images/gears")
+    assert(self.backgroundCogs)
+    self.backgroundCogsSprite = gfx.sprite.new(self.backgroundCogs[1])
+    self.backgroundCogsSprite:setCenter(1, 1)
+    self.backgroundCogsSprite:moveTo(400,240)
+    self.backgroundCogsSprite:add()
 
-    self.backgroundCogs = gfx.image.new(47,68)
-    self.backgroundCogsOffset = 0
-    self.backgroundCogsDegs = 0
-
-    self.bg = gfx.image.new(400, 72)
-    self.bg:clear(gfx.kColorBlack)
+    self.bg = gfx.image.new("images/background")
+    assert(self.bg)
     self:setImage(self.bg)
-    self:moveTo(200, 204)
+    self:moveTo(200, 120)
     self:setZIndex(-20)
     self:add()
 end
@@ -164,9 +164,6 @@ function CamShaft:updateShaft()
                 self.cams[i]:draw()
             end
             self:drawLinkages()
-            self.backgroundCogsOffset += change
-            self.backgroundCogsDegs += (change*2)
-            self.flywheelDegs += change
             self:drawBackgroudCogs()
         else
             -- cam
@@ -211,7 +208,6 @@ function CamShaft:updateShaft()
             self.ampEditor = CamFollowerInfoPanel(value)
         end
     end
-
     self.selectImage:clear(gfx.kColorClear)
     gfx.pushContext(self.selectImage)
         local rect = pd.geometry.rect.new(
@@ -312,81 +308,8 @@ function CamShaft:drawLinkages()
 end
 
 function CamShaft:drawBackgroudCogs()
-    -- self.backgroundCogs:clear(gfx.kColorWhite)
-    -- gfx.pushContext(self.backgroundCogs)
-    --     gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
-    --     gfx.setLineWidth(3)
-    --     gfx.drawLine(0,35,68,35)
-    --     gfx.drawLine(0,59,68,59)
-    --     gfx.setColor(gfx.kColorBlack)
-    --     self.backgroundCogsOffset = math.wrap(self.backgroundCogsOffset, 0, 68, 0)
-    --     gfx.drawLine(self.backgroundCogsOffset,35,self.backgroundCogsOffset-20,35)
-    --     gfx.drawLine(68-self.backgroundCogsOffset,59,68-self.backgroundCogsOffset-20,59)
-        
-    --     self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 0)
-    --     gfx.fillCircleAtPoint(0,47,3)
-    --     gfx.drawCircleAtPoint(0,47,10)
-    --     gfx.fillCircleAtPoint(24,47,3)
-    --     gfx.drawCircleAtPoint(24,47,10)
-    --     gfx.fillCircleAtPoint(48,47,3)
-    --     gfx.drawCircleAtPoint(48,47,10)
-    --     gfx.setLineWidth(5)
-    --     for i=1,6 do
-    --         gfx.drawArc(24,47,12,self.backgroundCogsDegs,self.backgroundCogsDegs+30)
-
-    --         local reverse = 359 - self.backgroundCogsDegs
-    --         gfx.drawArc(0,47,12,reverse,reverse+30)
-    --         gfx.drawArc(48,47,12,reverse,reverse+30)
-
-    --         self.backgroundCogsDegs = math.wrap(self.backgroundCogsDegs, 0, 359, 60)
-    --     end
-    -- gfx.popContext()
-
-    self.flywheelImage:clear(gfx.kColorWhite)
-    gfx.pushContext(self.flywheelImage)
-        --gfx.setPattern({0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55})
-        --gfx.fillCircleAtPoint(23,44,18)
-        -- gfx.setColor(gfx.kColorBlack)
-        -- gfx.setLineWidth(2)
-        -- gfx.drawCircleAtPoint(23,44,24)
-        -- gfx.drawCircleAtPoint(23,44,19)
-        -- gfx.setLineWidth(1)
-        -- gfx.drawCircleAtPoint(23,44,22)
-        -- gfx.drawTextInRect("crank!", 0, -1, 44, 20, 0, nil, kTextAlignment.center)
-
-        -- gfx.setLineWidth(38)
-        -- for i=1,9 do
-        --     gfx.drawArc(23,44,1,self.flywheelDegs,self.flywheelDegs+20)
-        --     self.flywheelDegs = math.wrap(self.flywheelDegs, 0, 359, 40)
-        -- end
-
-        -- draw crank
-        local d = pd.getCrankPosition()
-        local cx, cy = Vector.addToPoint(23, 44, d, 10)
-        gfx.setLineWidth(6)
-        gfx.setLineCapStyle(gfx.kLineCapStyleRound)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawLine(23,44,cx,cy)
-        gfx.setLineWidth(3)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.drawLine(23,44,cx,cy)
-        gfx.setLineWidth(2)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRoundRect(cx-2, cy-2, 20, 8, 30)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawRoundRect(cx-2, cy-2, 20, 8, 30)
-
-    gfx.popContext()
-
-    self.bg:clear(gfx.kColorBlack)
-    gfx.pushContext(self.bg)
-        -- self.backgroundCogs:draw(56, 3)
-        -- self.backgroundCogs:draw(152, 3)
-        -- self.backgroundCogs:draw(248, 3)
-
-        self.flywheelImage:draw(344,3)
-    gfx.popContext()
-    self:markDirty()
+    local i = math.clamp(math.floor(pd.getCrankPosition() / 2), 1, 180)
+    self.backgroundCogsSprite:setImage(self.backgroundCogs[i])
 end
 
 function CamShaft:updateHelpText()

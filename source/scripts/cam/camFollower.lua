@@ -119,7 +119,6 @@ function CamFollower:draw(updateBasePosition)
 
     self.followerImage:clear(gfx.kColorClear)
     gfx.pushContext(self.followerImage)
-    if updateBasePosition then
         -- Follower rod
         gfx.setPattern({ 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 })
         gfx.setLineWidth(2)
@@ -161,7 +160,6 @@ function CamFollower:draw(updateBasePosition)
         end
         gfx.fillCircleAtPoint(self.x, boxTop - 4, 4)
         gfx.fillCircleAtPoint(self.followerBaseX, self.followerBaseY, 4)
-    end
     gfx.popContext()
     self.followerSprite:markDirty()
 end

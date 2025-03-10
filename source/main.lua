@@ -24,13 +24,11 @@ local fontPaths = {
 gfx.setFontFamily(fontPaths)
 
 HELPER_UI = HelperUI()
-
 local level = Level()
-
 
 function pd.update()
     gfx.sprite.update()
     pd.timer.updateTimers()
-    pd.drawFPS(0, 0)
+    --pd.drawFPS(0, 0)
 end
 

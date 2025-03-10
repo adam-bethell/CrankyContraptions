@@ -14,10 +14,6 @@ local gfx <const> = pd.graphics
 class("World").extends(gfx.sprite)
 
 function World:init()
-
-    self.ball_shoot = gfx.image.new("images/ball_shoot")
-    assert(self.ball_shoot)
-
     self.ball = Circle(50,30,10, 5, 0)
     self.ball.restitution = 0.7
 
@@ -47,10 +43,6 @@ end
 function World:update()
     self.image:clear(gfx.kColorClear)
     gfx.pushContext(self.image)
-        -- Background
-        
-        self.ball_shoot:draw(self.ball.initX - 15, self.ball.initY - 33)
-
         -- Logic
         self.ball:update()
         for i, v in ipairs(self.rbs) do
