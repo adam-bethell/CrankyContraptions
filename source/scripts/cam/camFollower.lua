@@ -70,7 +70,6 @@ function CamFollower:calculateTargetOutput()
     local newTargetOutput = self.input * self.coeff
     if newTargetOutput ~= self.targetOutput then
         self.targetOutput = newTargetOutput
-        self:draw()
     end
 end
 
@@ -83,7 +82,6 @@ function CamFollower:update()
         else
             self.output -= self.maxChange
         end
-        self:draw()
     end
 end
 

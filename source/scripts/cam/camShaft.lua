@@ -162,6 +162,7 @@ function CamShaft:updateShaft()
             for i=1, 4 do
                 self.cams[i]:rotate(change)
                 self.cams[i]:draw()
+                self.followers[i]:draw()
             end
             self:drawLinkages()
             self:drawBackgroudCogs()
@@ -169,6 +170,7 @@ function CamShaft:updateShaft()
             -- cam
             self.cams[self.selection]:rotate(change)
             self.cams[self.selection]:draw()
+            self.followers[self.selection]:draw()
             self:drawLinkages()
         end
     

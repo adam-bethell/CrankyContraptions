@@ -18,16 +18,16 @@ function World:init()
     self.ball.restitution = 0.7
 
     self.rbs = {}
-    -- self.rbs[#self.rbs+1] = TwoPinLine(0,158,300,158,20)
-    -- self.rbs[#self.rbs].static = true
-    -- self.rbs[#self.rbs+1] = TwoPinLine(50,138,300,138,20)
-    -- self.rbs[#self.rbs].static = true
-    -- self.rbs[#self.rbs+1] = TwoPinLine(100,118,300,118,20)
-    -- self.rbs[#self.rbs].static = true
-    -- self.rbs[#self.rbs+1] = TwoPinLine(150,98,300,98,20)
-    -- self.rbs[#self.rbs].static = true
-    -- self.rbs[#self.rbs+1] = TwoPinLine(200,78,300,78,20)
-    -- self.rbs[#self.rbs].static = true
+    self.rbs[#self.rbs+1] = TwoPinLine(0,158,300,158,20)
+    self.rbs[#self.rbs].static = true
+    self.rbs[#self.rbs+1] = TwoPinLine(50,138,300,138,20)
+    self.rbs[#self.rbs].static = true
+    self.rbs[#self.rbs+1] = TwoPinLine(100,118,300,118,20)
+    self.rbs[#self.rbs].static = true
+    self.rbs[#self.rbs+1] = TwoPinLine(150,98,300,98,20)
+    self.rbs[#self.rbs].static = true
+    self.rbs[#self.rbs+1] = TwoPinLine(200,78,300,78,20)
+    self.rbs[#self.rbs].static = true
 
     self.image = gfx.image.new(400,240)
     self:setImage(self.image)
