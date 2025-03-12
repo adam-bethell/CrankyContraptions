@@ -74,6 +74,7 @@ function CamShaft:init(world)
     self.backgroundCogsSprite = gfx.sprite.new(self.backgroundCogs[1])
     self.backgroundCogsSprite:setCenter(1, 1)
     self.backgroundCogsSprite:moveTo(400,240)
+    self.backgroundCogsSprite:setZIndex(-10)
     self.backgroundCogsSprite:add()
 
     self.bg = gfx.image.new("images/background")
@@ -181,6 +182,7 @@ function CamShaft:updateShaft()
                 self.camEditor:setPoints(self.cams[self.selection]:clonePoints())
                 self.camEditor:setRotationsPerCrank(self.cams[self.selection].rotationCoeff)
                 self.camEditor:setHideFollower(true)
+                self.camEditor.showBG = true
                 self.camEditor:draw()
 
                 self.camInfoPanel = CamInfoPanel(self.camEditor, 305, 120, 160, 200, 10)

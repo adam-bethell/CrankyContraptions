@@ -13,21 +13,13 @@ local gfx <const> = pd.graphics
 
 class("World").extends(gfx.sprite)
 
-function World:init()
+function World:init(level)
     self.ball = Circle(50,30,10, 5, 0)
     self.ball.restitution = 0.7
 
     self.rbs = {}
-    self.rbs[#self.rbs+1] = TwoPinLine(0,158,300,158,20)
-    self.rbs[#self.rbs].static = true
-    self.rbs[#self.rbs+1] = TwoPinLine(50,138,300,138,20)
-    self.rbs[#self.rbs].static = true
-    self.rbs[#self.rbs+1] = TwoPinLine(100,118,300,118,20)
-    self.rbs[#self.rbs].static = true
-    self.rbs[#self.rbs+1] = TwoPinLine(150,98,300,98,20)
-    self.rbs[#self.rbs].static = true
-    self.rbs[#self.rbs+1] = TwoPinLine(200,78,300,78,20)
-    self.rbs[#self.rbs].static = true
+
+    self:loadLevel(level)
 
     self.image = gfx.image.new(400,240)
     self:setImage(self.image)
@@ -112,4 +104,28 @@ end
 function World:resetStage()
     self.ball:resetPosition()
     self.ball:resetVelocity()
+end
+
+function World:loadLevel(level)
+    if level == nil then
+        return
+    end
+
+    if level == 1 then
+        -- Add nothing
+    elseif level == 2 then
+        self.rbs[#self.rbs+1] = TwoPinLine(0,158,300,158,20)
+        self.rbs[#self.rbs].static = true
+        self.rbs[#self.rbs+1] = TwoPinLine(50,138,300,138,20)
+        self.rbs[#self.rbs].static = true
+        self.rbs[#self.rbs+1] = TwoPinLine(100,118,300,118,20)
+        self.rbs[#self.rbs].static = true
+        self.rbs[#self.rbs+1] = TwoPinLine(150,98,300,98,20)
+        self.rbs[#self.rbs].static = true
+        self.rbs[#self.rbs+1] = TwoPinLine(200,78,300,78,20)
+        self.rbs[#self.rbs].static = true
+    elseif level == 3 then
+        self.rbs[#self.rbs+1] = TwoPinLine(200,158,200,98,50)
+        self.rbs[#self.rbs].static = true
+    end
 end

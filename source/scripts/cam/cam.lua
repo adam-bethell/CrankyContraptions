@@ -27,6 +27,8 @@ function Cam:init(x, y, zIndex)
 
     self.lineWidth = 1
     self.camImage = nil
+    self.boxImage = nil
+    self.showBG = false
     self.shaftImage = nil
     self.selectionImage = nil
     self.newImageTable = false
@@ -41,6 +43,11 @@ function Cam:init(x, y, zIndex)
     self.selectionSprite:moveTo(self.x, self.y)
     self.selectionSprite:setZIndex(zIndex)
     self.selectionSprite:add()
+
+    self.boxSprite = gfx.sprite.new()
+    self.boxSprite:moveTo(self.x, self.y)
+    self.boxSprite:setZIndex(zIndex-1)
+    self.boxSprite:add()
 
     self.shaftSprite = gfx.sprite.new()
     self.shaftSprite:moveTo(self.x, self.y)
@@ -58,6 +65,7 @@ function Cam:setWidthAndHeight(value)
     self.lineWidth = math.floor((value / 60) + 0.5)
     self.camImage = gfx.image.new(self.w, self.h)
     self.selectionImage = gfx.image.new(self.w, self.h)
+    self.boxImage = gfx.image.new(self.w, self.h)
     self.shaftImage = gfx.image.new(self.w, self.h)
     self.shaftSprite:moveTo(self.x, self.y - (self.h / 2))
     self:generateCamImageTable()
@@ -175,6 +183,21 @@ function Cam:update()
 end
 
 function Cam:draw()
+    -- Box
+    if self.showBG == true then
+        self.boxImage:clear(gfx.kColorWhite)
+        gfx.pushContext(self.boxImage)
+            gfx.setLineWidth(self.lineWidth)
+            gfx.setPattern({0x55, 0xFF, 0x55, 0xFF, 0x55, 0xFF, 0x55, 0xFF})
+            gfx.fillRect(0, 0, self.boxImage.width, self.boxImage.height)
+            gfx.fillRect(self.h / 2, self.h / 2, 3, 3)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawRect(0, 0, self.w, self.h)
+        gfx.popContext()
+        self.boxSprite:setImage(self.boxImage)
+        self.boxSprite:markDirty()
+    end
+
     -- Selection
     self.selectionImage:clear(gfx.kColorClear)
     gfx.pushContext(self.selectionImage)

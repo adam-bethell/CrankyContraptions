@@ -17,7 +17,7 @@ local gfx <const> = pd.graphics
 class("Level").extends(gfx.sprite)
 
 function Level:init()
-    self.world = World()
+    self.world = World(3)
     self.camShaft = CamShaft(self.world)
     self.worldUI = WorldUI(self.camShaft, self.world)
 
